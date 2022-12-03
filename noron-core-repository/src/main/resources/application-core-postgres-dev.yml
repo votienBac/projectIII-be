@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    noron:
+      jdbc-url: jdbc:postgresql://noron-mysql:5432/postgres
+      username: postgres
+      password: Noron@2022
+      type: com.zaxxer.hikari.HikariDataSource
+      driver-class-name: org.postgresql.Driver
+      hikari:
+        idle-timeout: 30000

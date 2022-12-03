@@ -1,0 +1,11 @@
+spring:
+  kafka:
+    bootstrap-servers: noron-kafka-dev:9092
+    key-serializer-class-config: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer-class-config: org.apache.kafka.common.serialization.StringSerializer
+    acksConfig: 1
+    acks-config: 1
+    topics:
+      noron-action-log: noron_action_log_prod
+    group:
+      noron-action-log-group: noron_action_log_group

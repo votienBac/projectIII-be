@@ -1,0 +1,28 @@
+server:
+  port: 9090
+spring:
+  profiles:
+    include: default,core-postgres,redis,kafka
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+    deserialization:
+      FAIL_ON_UNKNOWN_PROPERTIES: false
+  rest-template:
+    enabled: true
+    proxy: false
+    connect-timeout: 30000
+    request-timeout: 30000
+    socket-timeout: 60000
+    max-total-connections: 50
+    default-keep-alive-time-millis: 20000
+    close-idle-connection-wait-time-secs: 30
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB
+      max-file-size: 200MB
+      max-request-size: 215MB
+  security:
+    jwt:
+      secret-key: ebb45472b2b2f2332a878adf21ac8afdc65474e2
+      expired-in: 15552000000

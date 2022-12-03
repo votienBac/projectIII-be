@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    motel:
+      jdbc-url: jdbc:postgresql://motel-dev:5432/motel
+      username: votienbac83
+      password: votienbac83
+      type: com.zaxxer.hikari.HikariDataSource
+      driver-class-name: org.postgresql.Driver
+      hikari:
+        idle-timeout: 30000

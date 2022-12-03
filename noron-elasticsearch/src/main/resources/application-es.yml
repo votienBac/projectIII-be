@@ -1,0 +1,8 @@
+noron:
+  database:
+    es:
+      username: elastic
+      password: cGV50qK6KrE8K8*sOQa8
+      node:
+        host: motel-es
+        port: 9200

@@ -1,0 +1,14 @@
+database:
+  mongo:
+    noron-api:
+      uri: mongodb://developer:123456aA%40@noron-mongo-dev:27017/?authSource=noron_api
+      database: noron_api
+    analytics:
+      uri: mongodb://developer:123456aA%40@noron-mongo-dev:27017/?authSource=noron_analytics
+      database: noron_analytics
+    training:
+      uri: mongodb://developer:123456aA%40@noron-mongo-dev:27017/?authSource=noron_training
+      database: noron_training
+    chat:
+      uri: mongodb://developer:123456aA%40@noron-mongo-dev:27017/?authSource=noron_chat
+      database: noron_chat

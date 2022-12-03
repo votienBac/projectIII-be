@@ -1,0 +1,8 @@
+noron:
+  database:
+    es:
+      username: elastic
+      password: Noron@2022
+      node:
+        host: noron-es-dev
+        port: 9200
