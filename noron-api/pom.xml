@@ -26,6 +26,11 @@
             <artifactId>noron-core-repository</artifactId>
             <version>${parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>vn.noron</groupId>
+            <artifactId>mongo-core-repository</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

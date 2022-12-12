@@ -42,19 +42,7 @@ public class UserController {
                 .map(DfResponse::okEntity);
     }
 
-    @Operation(summary = "Tạo tài khoản")
-    @ApiResponse(responseCode = "200", description = "Tạo thành công một tài khoản mới",
-            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class))})
-    @ApiResponse(responseCode = "400", description = "bad-request", content = @Content)
-    @ApiResponse(responseCode = "401", description = "un authenticated", content = @Content)
-    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
-    @ApiResponse(responseCode = "422", description = "Input invalidate", content = @Content)
 
-    @PostMapping(value = "/create")
-    public @NonNull Single<ResponseEntity<DfResponse<UserResponse>>> createUser(@RequestBody @Valid CreateUserRequest request){
-        return userService.createUser(request)
-                .map(DfResponse::okEntity);
-    }
     @Operation(summary = "Chỉnh sửa tài khoản")
     @ApiResponse(responseCode = "200", description = "Chỉnh sửa tài khoản",
             content = {@Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class))})

@@ -10,11 +10,13 @@
         <module>noron-searching</module>
         <module>noron-indexing</module>
         <module>noron-commons</module>
-        <module>noron-caching</module>
-        <module>noron-kafka</module>
-        <module>noron-migration</module>
-        <module>noron-elasticsearch</module>
+<!--        <module>noron-caching</module>-->
+<!--        <module>noron-kafka</module>-->
+<!--        <module>noron-migration</module>-->
+<!--        <module>noron-elasticsearch</module>-->
         <module>noron-core-repository</module>
+        <module>mongo-core-repository</module>
+        <module>commons-chat</module>
     </modules>
 
     <parent>

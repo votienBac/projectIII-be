@@ -2,7 +2,7 @@ server:
   port: 8085
 spring:
   profiles:
-    include: default,core-postgres
+    include: default, core-postgres
   jackson:
     property-naming-strategy: SNAKE_CASE
     deserialization:

@@ -32,7 +32,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/api/v1/admin/**").hasAnyRole("ADMIN")
                 .antMatchers("/api/v1/authenticate").permitAll()
-                .antMatchers("/api/v1/data-synchronization").permitAll()
+                .antMatchers("/api/v1/sign-up").permitAll()
                 .antMatchers("/api/v1/forgot-password").permitAll()
                 .antMatchers("/api/v1/notification/**").permitAll()
                 .antMatchers("/api/v1/news/search-similar").permitAll()

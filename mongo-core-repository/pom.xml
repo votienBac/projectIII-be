@@ -23,7 +23,7 @@
         </dependency>
         <dependency>
             <groupId>vn.noron</groupId>
-            <artifactId>noron-kafka</artifactId>
+            <artifactId>commons-chat</artifactId>
             <version>${parent.version}</version>
         </dependency>
     </dependencies>
