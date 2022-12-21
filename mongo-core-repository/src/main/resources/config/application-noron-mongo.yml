@@ -1,5 +1,5 @@
 database:
   mongo:
     motel:
-      uri: mongodb://motel-dev:27018/
+      uri: mongodb://motel-dev:27017/
       database: motel

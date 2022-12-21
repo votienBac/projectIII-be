@@ -1,32 +1,32 @@
-package vn.noron.data.pojo.room;
+package vn.noron.data.model.room;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import vn.noron.core.json.Json;
 
 @Data
 @Accessors(chain = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class GeoCoding {
-    Location location;
-    @JsonProperty("view_port")
-    ViewPort viewPort;
 
-    @JsonProperty("location_type")
+
+    Location location;
+    ViewPort viewport;
+
     String locationType;
+
+
     @Data
     @Accessors(chain = true)
-    public static class Location{
+    public static class Location {
         Double lat;
         Double lng;
     }
+
     @Data
     @Accessors(chain = true)
-    public static class ViewPort{
+    public static class ViewPort {
         Location northeast;
         Location southwest;
     }
-
-
-
 }

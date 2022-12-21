@@ -150,8 +150,8 @@
                                 <driver>org.postgresql.Driver</driver>
                                 <url>jdbc:postgresql://motel-dev:5432/motel</url>
                                 <!--                        <url>jdbc:postgresql://localhost:5320/alert</url>-->
-                                <user>votienbac83</user>
-                                <password>votienbac83</password>
+                                <user>votienbac</user>
+                                <password>votienbac</password>
                             </jdbc>
                             <generator>
                                 <database>

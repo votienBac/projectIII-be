@@ -1,5 +1,7 @@
 server:
   port: 8085
+api-url:
+  get-all-ohana: https://www.ohanaliving.vn/api/web/rooms/search
 spring:
   profiles:
     include: default, core-postgres

@@ -29,7 +29,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @Operation(summary = "Thông tin chi tiết user", tags = {"User"})
+    @Operation(summary = "Thông tin chi tiết user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lấy thông tin chi tiết User",
                     content = {@Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class))}),

@@ -1,10 +1,9 @@
 package vn.noron.data.model.room;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import vn.noron.data.pojo.room.FullAddress;
-import vn.noron.data.pojo.room.GeoCoding;
 
 import java.util.List;
 
@@ -16,12 +15,9 @@ public class Room {
     @JsonProperty("_id")
     String id;
     Long userId;
-    String ownerName;
     String roomName;
     Long roomPrice;
     Double roomArea;
-    Boolean vacantRoom;
-    Boolean stayedPlace;
     Double electricPrice;
     Double waterPrice;
     Double parkingFee;
@@ -33,11 +29,9 @@ public class Room {
     String streetName;
     String exactRoomAddress;
     String phoneNumber;
-    Boolean roomIsShared;
-    Boolean numberVacanciesAvailableInRoom;
     String roomGender;
     String notes;
-    List<String> uploadRoomImages;
+    List<ImageUpload> uploadRoomImages;
     Long createdDate;
     Long updatedDate;
     Boolean airConditioner;
@@ -58,16 +52,23 @@ public class Room {
     Boolean disabled;
     Boolean isFeaturedRoom;
     String roomType;
-    String availableStatus;
-    String availableStatusDate;
     Boolean window;
     Boolean waterHeater;
-    Boolean pending;
-    String closedHour;
-    String openedHour;
+    Object pending;
+
     Boolean isVerified;
     FullAddress fullAddressObject;
+    //@JsonProperty("geocodingApi")
     GeoCoding geocodingApi;
+    @Data
+    @Accessors(chain = true)
+    public static class ImageUpload{
+        String original;
+        String thumbnail;
+    }
+
+
+
 
 
 }

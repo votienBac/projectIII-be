@@ -28,6 +28,7 @@ public interface IUserService {
     Single<List<UserResponse>> getUserWithPageable(Pageable pageable, String keyword);
 
     Single<UserResponse> getDetailUser(Long id);
+    Single<List<UserResponse>> getByIds(List<Long> ids);
 
     Single<String> deleteUser(Long id);
 }

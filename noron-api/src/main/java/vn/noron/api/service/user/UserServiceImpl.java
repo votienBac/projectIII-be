@@ -275,6 +275,14 @@ public class UserServiceImpl implements IUserService {
                 }
         );
     }
+
+    @Override
+    public Single<List<UserResponse>> getByIds(List<Long> ids) {
+        return userRepository.findAllById(ids)
+                        .map(users -> userMapper.toResponses(users));
+
+    }
+
     @Override
     public Single<String> deleteUser(Long id) {
         return checkExistsAccountById(id)

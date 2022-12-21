@@ -33,7 +33,7 @@ public class AuthenticationResource {
         this.userService = userService;
     }
 
-    @Operation(summary = "Đăng nhập", tags = {"User"})
+    @Operation(summary = "Đăng nhập")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Đăng nhập vào hệ thống",
                     content = {@Content(

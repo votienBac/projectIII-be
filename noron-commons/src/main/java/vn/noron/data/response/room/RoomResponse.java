@@ -1,29 +1,28 @@
-package vn.noron.data.request.room;
+package vn.noron.data.response.room;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import vn.noron.data.model.room.FullAddress;
 import vn.noron.data.model.room.GeoCoding;
 import vn.noron.data.model.room.Room;
-
+import vn.noron.data.response.user.UserResponse;
 
 import java.util.List;
 
 @Data
 @Accessors(chain = true)
-public class CreateRoomRequest {
-    @JsonIgnore
+public class RoomResponse {
+    @JsonProperty("_id")
+    String id;
     Long userId;
-    @JsonIgnore
-    Boolean isAdmin;
     String roomName;
     Long roomPrice;
     Double roomArea;
     Double electricPrice;
     Double waterPrice;
     Double parkingFee;
-    Double deposit; //thang dat coc
+    Double deposit;
     String roomLocation;
     Long roomLocationDistrict;
     Long roomLocationWard;
@@ -31,11 +30,11 @@ public class CreateRoomRequest {
     String streetName;
     String exactRoomAddress;
     String phoneNumber;
-    Boolean roomIsShared;
-
     String roomGender;
     String notes;
     List<Room.ImageUpload> uploadRoomImages;
+    Long createdDate;
+    Long updatedDate;
     Boolean airConditioner;
     Boolean roomBathroom;
     Boolean parkingSituation;
@@ -51,11 +50,21 @@ public class CreateRoomRequest {
     Boolean roomWindow;
     Boolean isTopRoom;
     Long roomView;
-    Boolean isFeaturedRoom;
+    Boolean disabled;
     String roomType;
     Boolean window;
     Boolean waterHeater;
-    FullAddress fullAddressObject;
-    GeoCoding geocodingApi;
+    Object pending;
 
+    Boolean isVerified;
+    FullAddress fullAddressObject;
+
+    GeoCoding geocodingApi;
+    UserResponse ownerInfo;
+    @Data
+    @Accessors(chain = true)
+    public static class ImageUpload{
+        String original;
+        String thumbnail;
+    }
 }

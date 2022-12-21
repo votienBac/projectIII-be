@@ -16,7 +16,7 @@ import vn.noron.commons.config.database.mongo.model.CollectionConstant;
 public class MongoDriverCommon {
     private final MongoDatabase apiMongoDatabase;
     public MongoDriverCommon(MongoProperties noronApiConfig) {
-        this.apiMongoDatabase = new MongoClient(new MongoClientURI("mongodb://motel-dev:27018/"))
+        this.apiMongoDatabase = new MongoClient(new MongoClientURI("mongodb://motel-dev:27017/"))
                 .getDatabase("motel");
     }
 

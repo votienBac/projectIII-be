@@ -46,6 +46,7 @@ public class Json {
         }
     }
 
+
     /**
      * Encode a POJO to JSON using the underlying Jackson mapper.
      *

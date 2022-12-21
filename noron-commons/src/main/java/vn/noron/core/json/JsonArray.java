@@ -4,9 +4,11 @@ import vn.noron.core.log.Logger;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
+import static vn.noron.config.JsonMapper.getObjectMapper;
 
 public class JsonArray implements Iterable<Object> {
     private static final Logger log = Logger.getLogger(JsonArray.class);
@@ -269,7 +271,12 @@ public class JsonArray implements Iterable<Object> {
         list.add(value);
         return this;
     }
-
+    public <T> List<T> mapTo(Class<T> tClass) {
+        return list.stream()
+                .filter(Objects::nonNull)
+                .map(o -> getObjectMapper().convertValue(o, tClass))
+                .collect(Collectors.toList());
+    }
     /**
      * Add a Long to the JSON array.
      *

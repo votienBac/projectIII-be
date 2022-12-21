@@ -6,6 +6,7 @@ public class GenericFieldConstant {
     }
 
     public static final String _ID = "_id";
+    public static final String PENDING = "pending";
 
     public static final String ID = "id";
     public static final String TIME = "time";
@@ -43,7 +44,7 @@ public class GenericFieldConstant {
     public static final String ORDER = "order";
     public static final String CLIENT_ID = "client_id";
     public static final String ROOM_TYPE = "room_type";
-    public static final String PENDING = "pending";
+
     public static final String POST_DELETED = "post_deleted";
     public static final String DELETED_AT = "deleted_at";
     public static final String DELETED_BY = "deleted_by";

@@ -3,8 +3,9 @@ package vn.noron.data.request.room;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import vn.noron.data.pojo.room.FullAddress;
-import vn.noron.data.pojo.room.GeoCoding;
+import vn.noron.data.model.room.FullAddress;
+import vn.noron.data.model.room.GeoCoding;
+import vn.noron.data.model.room.Room;
 
 import java.util.List;
 
@@ -19,8 +20,6 @@ public class UpdateRoomRequest {
     String roomName;
     Long roomPrice;
     Double roomArea;
-    Boolean vacantRoom; //phong trong hay ko
-    Boolean stayedPlace;
     Double electricPrice;
     Double waterPrice;
     Double parkingFee;
@@ -33,10 +32,9 @@ public class UpdateRoomRequest {
     String exactRoomAddress;
     String phoneNumber;
     Boolean roomIsShared;
-    Boolean numberVacanciesAvailableInRoom;
     String roomGender;
     String notes;
-    List<String> uploadRoomImages;
+    List<Room.ImageUpload> uploadRoomImages;
     Boolean airConditioner;
     Boolean roomBathroom;
     Boolean parkingSituation;
@@ -52,12 +50,9 @@ public class UpdateRoomRequest {
     Boolean roomWindow;
     Boolean isTopRoom;
     Long roomView;
-    Boolean isFeaturedRoom;
     String roomType;
     Boolean window;
     Boolean waterHeater;
-    String closedHour;
-    String openedHour;
     FullAddress fullAddressObject;
     GeoCoding geocodingApi;
 }
