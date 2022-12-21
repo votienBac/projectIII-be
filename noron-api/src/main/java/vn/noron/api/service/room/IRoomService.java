@@ -21,6 +21,9 @@ public interface IRoomService {
 
     Single<RoomResponse> getByID(String id);
     Single<List<RoomResponse>>  search(SearchRoomRequest request, Pageable pageable);
+
+    Single<List<RoomResponse>> getByIDS(List<String> roomIds);
+
     Single<List<RoomResponse>>  getByUserId(PersonalRoomRequest request, Pageable pageable);
     Single<List<RoomResponse>> getAllPendingRoom( Pageable pageable);
 }

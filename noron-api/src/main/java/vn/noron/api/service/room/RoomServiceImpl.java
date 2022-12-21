@@ -83,6 +83,12 @@ public class RoomServiceImpl implements IRoomService {
                 .flatMap(rooms -> mapRoomOwner(rooms));
     }
 
+    @Override
+    public Single<List<RoomResponse>> getByIDS(List<String> roomIds) {
+        return roomRepository.getByIds(roomIds)
+                .map(roomMapper::roomResponses);
+    }
+
     private Single<List<RoomResponse>> mapRoomOwner(List<Room> rooms) {
         List<Long> userIds = extractField(rooms, Room::getUserId);
         return userService.getByIds(userIds)

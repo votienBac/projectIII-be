@@ -259,6 +259,7 @@ public abstract class AbsRepository<R extends TableRecordImpl<R>, P, ID> impleme
         return Single.error(new DBException(ID_MUST_NOT_BE_NULL));
     }
 
+
     protected Condition filterActive() {
         return DSL.trueCondition();
     }

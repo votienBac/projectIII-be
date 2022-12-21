@@ -32,7 +32,6 @@ public class CreateRoomRequest {
     String exactRoomAddress;
     String phoneNumber;
     Boolean roomIsShared;
-
     String roomGender;
     String notes;
     List<Room.ImageUpload> uploadRoomImages;

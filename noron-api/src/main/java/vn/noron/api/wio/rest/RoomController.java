@@ -23,6 +23,7 @@ import vn.noron.data.request.room.CreateRoomRequest;
 import vn.noron.data.request.room.PersonalRoomRequest;
 import vn.noron.data.request.room.SearchRoomRequest;
 import vn.noron.data.request.room.UpdateRoomRequest;
+import vn.noron.data.response.reportroom.ReportRoomResponse;
 import vn.noron.data.response.room.RoomResponse;
 import vn.noron.utils.authentication.AuthenticationUtils;
 
@@ -37,6 +38,7 @@ import static vn.noron.apiconfig.model.DfResponseList.okEntity;
 public class RoomController {
     private final IRoomService roomService;
     private final BackjobService backjobService;
+
     public RoomController(IRoomService roomService, BackjobService backjobService) {
         this.roomService = roomService;
 
@@ -52,12 +54,13 @@ public class RoomController {
     @ApiResponse(responseCode = "422", description = "Input invalidate", content = @Content)
 
     @PostMapping(value = "/create")
-    public @NonNull Single<ResponseEntity<DfResponse<Room>>> createUser(@RequestBody @Valid CreateRoomRequest request, Authentication authentication){
+    public @NonNull Single<ResponseEntity<DfResponse<Room>>> createUser(@RequestBody @Valid CreateRoomRequest request, Authentication authentication) {
         request.setUserId(AuthenticationUtils.loggedUserId(authentication))
                 .setIsAdmin(AuthenticationUtils.isAdmin(authentication));
         return roomService.createRoom(request)
                 .map(DfResponse::okEntity);
     }
+
     @Operation(summary = "Tạo phong")
     @ApiResponse(responseCode = "200", description = "Tạo phong",
             content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Room.class))})
@@ -67,7 +70,7 @@ public class RoomController {
     @ApiResponse(responseCode = "422", description = "Input invalidate", content = @Content)
 
     @PostMapping(value = "/add-data")
-    public @NonNull Single<ResponseEntity<DfResponse<Boolean>>> addData(){
+    public @NonNull Single<ResponseEntity<DfResponse<Boolean>>> addData() {
         return backjobService.addDataToDB()
                 .map(DfResponse::okEntity);
     }
@@ -81,12 +84,13 @@ public class RoomController {
     @ApiResponse(responseCode = "422", description = "Input invalidate", content = @Content)
 
     @PostMapping(value = "/update")
-    public @NonNull Single<ResponseEntity<DfResponse<String>>> createUser(@RequestBody @Valid UpdateRoomRequest request, Authentication authentication){
+    public @NonNull Single<ResponseEntity<DfResponse<String>>> createUser(@RequestBody @Valid UpdateRoomRequest request, Authentication authentication) {
         request.setUserId(AuthenticationUtils.loggedUserId(authentication))
                 .setIsAdmin(AuthenticationUtils.isAdmin(authentication));
         return roomService.updateRoom(request)
                 .map(DfResponse::okEntity);
     }
+
     @Operation(summary = "Thông tin chi tiết phòng ")
     @ApiResponse(responseCode = "200", description = "Sua phong",
             content = {@Content(mediaType = "application/json", schema = @Schema(implementation = RoomResponse.class))})
@@ -95,9 +99,9 @@ public class RoomController {
     @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     @ApiResponse(responseCode = "422", description = "Input invalidate", content = @Content)
 
-    @PostMapping(value = "/{id}")
-    public @NonNull Single<ResponseEntity<DfResponse<RoomResponse>>> getById(@PathVariable String id){
-        return roomService.getByID(id)
+    @PostMapping()
+    public @NonNull Single<ResponseEntity<DfResponse<RoomResponse>>> getById( @RequestParam(value = "room_id") String roomId) {
+        return roomService.getByID(roomId)
                 .map(DfResponse::okEntity);
     }
 
@@ -115,9 +119,10 @@ public class RoomController {
     public @NonNull Single<ResponseEntity<DfResponseList<RoomResponse>>> search(
             @PageableRequest Pageable pageable,
             @RequestBody SearchRoomRequest request) {
-        return roomService.search(request,pageable)
+        return roomService.search(request, pageable)
                 .map(users -> okEntity(users, pageable));
     }
+
     @Operation(summary = "Danh sách kiểu phòng")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Danh sách kiểu phòng",
@@ -132,6 +137,7 @@ public class RoomController {
         return Single.just(RoomType.getAll())
                 .map(DfResponse::okEntity);
     }
+
     @Operation(summary = "Lấy tất cả phòng của user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lấy tất cả phòng của user",
@@ -147,8 +153,10 @@ public class RoomController {
             @RequestBody PersonalRoomRequest request,
             Authentication authentication) {
         request.setUserId(AuthenticationUtils.loggedUserId(authentication));
-        return roomService.getByUserId(request,pageable)
+        return roomService.getByUserId(request, pageable)
                 .map(users -> okEntity(users, pageable));
     }
+
+
 
 }

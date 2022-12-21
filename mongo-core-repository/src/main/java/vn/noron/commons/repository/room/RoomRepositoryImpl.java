@@ -40,10 +40,16 @@ public class RoomRepositoryImpl extends AbsMongoRepository<Room> implements IRoo
     }
 
     @Override
-    public List<Room> getByIds(List<String> id, String roomType) {
-        return mongoCollection.find(and(in(_ID, id), eq(ROOM_TYPE, roomType)))
-                .map(document -> new JsonObject(document).mapTo(Room.class))
-                .into(new ArrayList<>());
+    public Single<List<Room>> getByIds(List<String> id) {
+
+        return rxSchedulerIo(() -> {
+            List<Room> rooms = mongoCollection
+                    .find(and(in(_ID, id), eq(PENDING, false)))
+                    .map(document -> new JsonObject(document).mapTo(tClazz))
+                    .into(new ArrayList<>());
+
+            return rooms;
+        });
     }
     @Override
     public void updatePendingRoom(String id){

@@ -14,7 +14,7 @@ public interface IRoomRepository extends IMongoRepository<Room> {
     //Room createRoom(Room room);
 
     void updateRoom(Room room);
-    List<Room> getByIds(List<String> id, String roomType);
+    Single<List<Room>> getByIds(List<String> id);
 
     void updatePendingRoom(String id);
 
