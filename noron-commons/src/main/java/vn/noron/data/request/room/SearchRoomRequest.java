@@ -1,5 +1,6 @@
 package vn.noron.data.request.room;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import vn.noron.data.model.room.GeoCoding;
@@ -12,6 +13,8 @@ public class SearchRoomRequest {
     Search search;
     Filter filter;
     String roomLocation;
+    @JsonIgnore
+    Long userId;
 
     @Data
     @Accessors(chain = true)

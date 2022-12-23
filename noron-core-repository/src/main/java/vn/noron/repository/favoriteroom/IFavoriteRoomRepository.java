@@ -12,5 +12,7 @@ public interface IFavoriteRoomRepository extends IBaseRepository<FavoriteRoom, L
     Single<Integer> deleteFromFavorite(Long userId, String roomId);
     Single<Integer> deleteByRoomId(String roomId);
 
+    Single<List<FavoriteRoom>> getByUserIdAndRoomIds(Long userId, List<String> roomIds);
+    Single<List<FavoriteRoom>> getByUserId(Long userId);
     Single<Pair<Long, List<FavoriteRoom>>> getPageable(Long userId, Pageable pageable);
 }

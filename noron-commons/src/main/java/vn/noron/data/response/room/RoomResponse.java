@@ -57,10 +57,12 @@ public class RoomResponse {
     Object pending;
 
     Boolean isVerified;
+    Boolean isFavoriteRoom = false;
     FullAddress fullAddressObject;
 
     GeoCoding geocodingApi;
     UserResponse ownerInfo;
+
     @Data
     @Accessors(chain = true)
     public static class ImageUpload{

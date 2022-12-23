@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import vn.noron.api.service.backjob.BackjobService;
 import vn.noron.api.service.room.IRoomService;
 import vn.noron.apiconfig.config.bind.annotation.PageableRequest;
-import vn.noron.apiconfig.config.bind.annotation.SearchRequest;
 import vn.noron.apiconfig.model.DfResponse;
 import vn.noron.apiconfig.model.DfResponseList;
 import vn.noron.data.constant.room.RoomType;
@@ -23,7 +22,6 @@ import vn.noron.data.request.room.CreateRoomRequest;
 import vn.noron.data.request.room.PersonalRoomRequest;
 import vn.noron.data.request.room.SearchRoomRequest;
 import vn.noron.data.request.room.UpdateRoomRequest;
-import vn.noron.data.response.reportroom.ReportRoomResponse;
 import vn.noron.data.response.room.RoomResponse;
 import vn.noron.utils.authentication.AuthenticationUtils;
 
@@ -99,9 +97,10 @@ public class RoomController {
     @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
     @ApiResponse(responseCode = "422", description = "Input invalidate", content = @Content)
 
-    @PostMapping()
-    public @NonNull Single<ResponseEntity<DfResponse<RoomResponse>>> getById( @RequestParam(value = "room_id") String roomId) {
-        return roomService.getByID(roomId)
+    @PostMapping("/detail")
+    public @NonNull Single<ResponseEntity<DfResponse<RoomResponse>>> getById( @RequestParam(value = "room_id") String roomId,
+                                                                              Authentication authentication) {
+        return roomService.roomDetail(roomId, AuthenticationUtils.loggedUserId(authentication))
                 .map(DfResponse::okEntity);
     }
 
@@ -118,7 +117,9 @@ public class RoomController {
     @PostMapping("/search")
     public @NonNull Single<ResponseEntity<DfResponseList<RoomResponse>>> search(
             @PageableRequest Pageable pageable,
-            @RequestBody SearchRoomRequest request) {
+            @RequestBody SearchRoomRequest request,
+            Authentication authentication) {
+        request.setUserId(AuthenticationUtils.loggedUserId(authentication));
         return roomService.search(request, pageable)
                 .map(users -> okEntity(users, pageable));
     }

@@ -42,6 +42,22 @@ public class FavoriteRoomRepositoryImpl extends AbsRepository<FavoriteRoomRecord
     }
 
     @Override
+    public Single<List<FavoriteRoom>> getByUserIdAndRoomIds(Long userId, List<String> roomIds) {
+        return rxSchedulerIo(() -> dslContext.select()
+                .from(FAVORITE_ROOM)
+                .where(FAVORITE_ROOM.ROOM_ID.in(roomIds).and(FAVORITE_ROOM.USER_ID.eq(userId)))
+                .fetchInto(FavoriteRoom.class));
+    }
+
+    @Override
+    public Single<List<FavoriteRoom>> getByUserId(Long userId) {
+        return rxSchedulerIo(() -> dslContext.select()
+                .from(FAVORITE_ROOM)
+                .where(FAVORITE_ROOM.USER_ID.eq(userId))
+                .fetchInto(FavoriteRoom.class));
+    }
+
+    @Override
     public Single<Pair<Long, List<FavoriteRoom>>> getPageable(Long userId, Pageable pageable) {
         return rxSchedulerIo(() -> {
             final @NonNull SelectConditionStep<Record> recordSelectConditionStep = dslContext

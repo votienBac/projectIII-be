@@ -112,7 +112,9 @@ public abstract class AbsMongoRepository<T> implements IMongoRepository<T> {
     }
 
     public T getById(String id) {
-        return Optional.ofNullable(mongoCollection.find(eq(_ID, id)).map(document -> new vn.noron.core.json.JsonObject(document).mapTo(tClazz)).first()).orElse(null);
+        return Optional.ofNullable(mongoCollection.
+                find(eq(_ID, id))
+                .map(document -> new JsonObject(document).mapTo(tClazz)).first()).orElse(null);
     }
 
     @Override

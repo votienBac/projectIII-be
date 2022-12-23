@@ -1,7 +1,6 @@
 package vn.noron.api.service.room;
 
 import io.reactivex.rxjava3.core.Single;
-import vn.noron.data.model.SearchRequest;
 import vn.noron.data.model.paging.Pageable;
 import vn.noron.data.model.room.Room;
 import vn.noron.data.request.room.CreateRoomRequest;
@@ -19,7 +18,7 @@ public interface IRoomService {
 
     Single<String> censorshipRoom(String id);
 
-    Single<RoomResponse> getByID(String id);
+    Single<RoomResponse> roomDetail(String id, Long userId);
     Single<List<RoomResponse>>  search(SearchRoomRequest request, Pageable pageable);
 
     Single<List<RoomResponse>> getByIDS(List<String> roomIds);
