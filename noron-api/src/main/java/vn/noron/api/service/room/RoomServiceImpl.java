@@ -2,12 +2,15 @@ package vn.noron.api.service.room;
 
 import io.reactivex.rxjava3.core.Single;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import vn.noron.api.service.user.IUserService;
 import vn.noron.apiconfig.config.exception.ApiException;
 import vn.noron.commons.repository.room.IRoomRepository;
 import vn.noron.data.mapper.room.RoomMapper;
 import vn.noron.data.model.paging.Pageable;
+import vn.noron.data.model.room.GeoCoding;
 import vn.noron.data.model.room.Room;
 import vn.noron.data.request.room.CreateRoomRequest;
 import vn.noron.data.request.room.PersonalRoomRequest;
@@ -17,7 +20,9 @@ import vn.noron.data.response.room.RoomResponse;
 import vn.noron.data.response.user.UserResponse;
 import vn.noron.data.tables.pojos.FavoriteRoom;
 import vn.noron.repository.favoriteroom.IFavoriteRoomRepository;
+import vn.noron.utils.authentication.AuthenticationUtils;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +38,10 @@ public class RoomServiceImpl implements IRoomService {
     private final IUserService userService;
     private final RoomMapper roomMapper;
 
-    public RoomServiceImpl(IRoomRepository roomRepository, IFavoriteRoomRepository favoriteRoomRepository, IUserService userService, RoomMapper roomMapper) {
+    public RoomServiceImpl(IRoomRepository roomRepository,
+                           IFavoriteRoomRepository favoriteRoomRepository,
+                           IUserService userService,
+                           RoomMapper roomMapper) {
         this.roomRepository = roomRepository;
         this.favoriteRoomRepository = favoriteRoomRepository;
         this.userService = userService;
@@ -56,12 +64,37 @@ public class RoomServiceImpl implements IRoomService {
                 });
 
     }
+    //@PostConstruct
+    //@Scheduled(cron = "0 15 0 0 0 0")
+    public void updateLocationForRoom() {
+        List<Room> rooms = roomRepository.getAll();
+        List<Room> updateRooms = rooms.stream()
+                .filter(room -> room.getGeocodingApi() != null)
+                .map(room -> room.setLocation(new GeoCoding.Location()
+                        .setLng(room.getGeocodingApi().getLocation().getLng())
+                        .setLat(room.getGeocodingApi().getLocation().getLat())))
+                .collect(Collectors.toList());
+        roomRepository.updateOnInsert(updateRooms);
+
+    }
 
     @Override
     public Single<String> censorshipRoom(String id) {
         roomRepository.updatePendingRoom(id);
         return Single.just("success");
 
+    }
+
+    @Override
+    public Single<String> deleteRoom(String id, Authentication authentication) {
+        return roomDetail(id, null)
+                .map(room -> {
+                    if (!AuthenticationUtils.isAdmin(authentication)
+                            && !AuthenticationUtils.loggedUserId(authentication).equals(room.getUserId()))
+                        throw new ApiException("You are not owner this room or admin");
+                    roomRepository.delete(id);
+                    return "success";
+                });
     }
 
     @Override

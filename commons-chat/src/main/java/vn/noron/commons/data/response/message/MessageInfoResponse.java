@@ -14,6 +14,6 @@ public class MessageInfoResponse {
     private String text;
     private String status;
     private String messageType;
-    private Long creationTime;
+    private Long createdTime;
     private List<Attachment> attachments;
 }

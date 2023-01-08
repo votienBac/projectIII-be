@@ -163,6 +163,57 @@ public abstract class AbsRepository<R extends TableRecordImpl<R>, P, ID> impleme
     }
 
     @Override
+    public Single<List<Integer>> insertOnConflictKeyUpdate(Collection<P> pojos, Collection<? extends Field<?>> fieldConflict) {
+        final List<InsertOnDuplicateSetMoreStep<R>> moreStepList = pojos.stream()
+                .map(p -> toInsertQueries(record, p))
+                .map(fieldObjectMap -> dslContext
+                        .insertInto(getTable())
+                        .set(fieldObjectMap)
+                        .onConflict(fieldConflict)
+                        .doUpdate()
+                        .set(fieldObjectMap))
+                .collect(Collectors.toList());
+
+        return rxSchedulerIo(() -> partition(moreStepList, 1000)
+                .stream()
+                .flatMap(lists -> Arrays.stream(dslContext.batch(lists).execute()).boxed())
+                .collect(Collectors.toList()));
+    }
+
+    @Override
+    public Single<Optional<P>> insertOnConflictKeyUpdate(P pojo, Collection<? extends Field<?>> fieldConflict) {
+
+        return rxSchedulerIo(() -> ofNullable(dslContext
+                .insertInto(getTable())
+                .set(toInsertQueries(record, pojo))
+                .onConflict(fieldConflict)
+                .doUpdate()
+                .set(onDuplicateKeyUpdate(pojo))
+                .returning()
+                .fetchOne())
+                .map(r -> r.into(pojoClass)));
+    }
+    @Override
+    public List<Integer> insertOnConflictKeyUpdateBlocking(Collection<P> pojos,
+                                                           Collection<? extends Field<?>> fieldConflict,
+                                                           DSLContext context) {
+        final List<InsertOnDuplicateSetMoreStep<R>> moreStepList = pojos.stream()
+                .map(p -> toInsertQueries(record, p))
+                .map(fieldObjectMap -> context
+                        .insertInto(getTable())
+                        .set(fieldObjectMap)
+                        .onConflict(fieldConflict)
+                        .doUpdate()
+                        .set(fieldObjectMap))
+                .collect(Collectors.toList());
+
+        return partition(moreStepList, 1000)
+                .stream()
+                .flatMap(lists -> Arrays.stream(context.batch(lists).execute()).boxed())
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Single<Integer> update(ID id, P pojo) {
         if (fieldID != null)
             return rxSchedulerIo(() -> dslContext.update(getTable())

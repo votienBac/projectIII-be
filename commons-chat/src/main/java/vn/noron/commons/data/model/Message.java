@@ -14,7 +14,7 @@ public class Message {
     private String id;                             // id message (tương đương mid)
     private String senderId;
     private String senderType;
-    private Long creationTime;
+    private Long createdTime;
     private String text;
     private List<Attachment> attachments;        // các url đi kèm (đối với loại tin nhắn attachment)
     private String messageType;                 // loại tin nhắn : TEXT, ATTACHMENT

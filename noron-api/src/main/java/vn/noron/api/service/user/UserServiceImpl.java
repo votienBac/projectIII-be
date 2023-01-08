@@ -279,8 +279,14 @@ public class UserServiceImpl implements IUserService {
     @Override
     public Single<List<UserResponse>> getByIds(List<Long> ids) {
         return userRepository.findAllById(ids)
-                        .map(users -> userMapper.toResponses(users));
+                        .map(userMapper::toResponses);
 
+    }
+
+    @Override
+    public Single<List<UserResponse>> getByEmails(List<String> emails) {
+        return userRepository.findByEmails(emails)
+                .map(userMapper::toResponses);
     }
 
     @Override

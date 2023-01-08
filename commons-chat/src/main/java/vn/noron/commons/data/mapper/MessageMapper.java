@@ -19,7 +19,7 @@ public abstract class MessageMapper {
                 .setId(String.valueOf(user.getId()));
         MessageInfoResponse messageInfoResponse = toMessageInfoResponse(message);
         return new MessageResponse()
-                .setTimeStamp(message.getCreationTime().toString())
+                .setTimeStamp(message.getCreatedTime().toString())
                 .setSender(userInfoResponse)
                 .setMessage(messageInfoResponse);
     }
@@ -29,7 +29,7 @@ public abstract class MessageMapper {
                 .setMid(message.getId())
                 .setText(text)
                 .setStatus(message.getStatus().equals(MessageConstant.ACTIVE) ? "active" : "deleted")
-                .setCreationTime(message.getCreationTime())
+                .setCreatedTime(message.getCreatedTime())
                 .setMessageType(message.getMessageType())
                 .setAttachments(message.getAttachments());
     }

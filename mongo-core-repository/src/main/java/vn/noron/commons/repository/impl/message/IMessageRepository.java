@@ -9,7 +9,7 @@ import vn.noron.commons.repository.IMongoRepository;
 import java.util.List;
 
 public interface IMessageRepository extends IMongoRepository<Message> {
-//    List<Message> getMessagesFromTime(long fromTime);
+    List<Message> getMessagesFromTime(long fromTime);
 //
 //    List<Message> getMessages(long fromTime, long toTime);
 //

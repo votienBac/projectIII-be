@@ -3,6 +3,7 @@ package vn.noron.api.wio.rest;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Single;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -86,6 +87,26 @@ public class RoomController {
         request.setUserId(AuthenticationUtils.loggedUserId(authentication))
                 .setIsAdmin(AuthenticationUtils.isAdmin(authentication));
         return roomService.updateRoom(request)
+                .map(DfResponse::okEntity);
+    }
+
+    @Operation(summary = "Xóa phòng")
+    @ApiResponse(responseCode = "200", description = "Xóa phòng",
+            content = {@Content(mediaType = "application/json", schema = @Schema(implementation = String.class))})
+    @ApiResponse(responseCode = "400", description = "bad-request", content = @Content)
+    @ApiResponse(responseCode = "401", description = "un authenticated", content = @Content)
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
+    @ApiResponse(responseCode = "422", description = "Input invalidate", content = @Content)
+    @DeleteMapping(value = "/delete/{id}")
+    public @NonNull Single<ResponseEntity<DfResponse<String>>> deleteUser(
+            @Parameter(
+                    name =  "id",
+                    description = "User Id",
+                    example = "1",
+                    required = true)
+
+            @PathVariable String id, Authentication authentication){
+        return roomService.deleteRoom(id, authentication)
                 .map(DfResponse::okEntity);
     }
 

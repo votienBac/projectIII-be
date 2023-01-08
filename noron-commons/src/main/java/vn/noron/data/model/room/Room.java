@@ -57,6 +57,7 @@ public class Room {
     Object pending;
 
     Boolean isVerified;
+    GeoCoding.Location location;
     FullAddress fullAddressObject;
     //@JsonProperty("geocodingApi")
     GeoCoding geocodingApi;

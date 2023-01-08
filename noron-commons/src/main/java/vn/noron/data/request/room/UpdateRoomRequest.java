@@ -55,4 +55,5 @@ public class UpdateRoomRequest {
     Boolean waterHeater;
     FullAddress fullAddressObject;
     GeoCoding geocodingApi;
+    GeoCoding.Location location;
 }

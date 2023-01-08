@@ -18,7 +18,7 @@ public class CollectionConstant {
 
 
     // Noron chat
-    public static final String MESSAGES = "messages";
+    public static final String MESSAGE = "message";
     public static final String MESSAGE_MEDIA = "message_media";
     public static final String PAGEVIEW_POST_COUTER = "pageview_post_counter";
     public static final String PAGEVIEW_POST_DAILY = "pageview_post_daily";

@@ -3,6 +3,8 @@ package vn.noron.repository;
 import io.reactivex.rxjava3.core.Single;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
+import org.jooq.Field;
+import org.jooq.TableField;
 import vn.noron.core.exception.DBException;
 import vn.noron.data.model.paging.Pageable;
 import vn.noron.repository.utils.UpdateField;
@@ -37,6 +39,15 @@ public interface IBaseRepository<P, ID> {
     Single<List<Integer>> insertOnDuplicateKeyIgnore(Collection<P> pojos);
 
     Single<List<Integer>> insertOnDuplicateKeyUpdate(Collection<P> pojos);
+
+
+    Single<List<Integer>> insertOnConflictKeyUpdate(Collection<P> pojos, Collection<? extends Field<?>> fieldConflict);
+
+    Single<Optional<P>> insertOnConflictKeyUpdate(P pojo, Collection<? extends Field<?>> fieldConflict);
+
+    List<Integer> insertOnConflictKeyUpdateBlocking(Collection<P> pojos,
+                                                    Collection<? extends Field<?>> fieldConflict,
+                                                    DSLContext context);
 
     Single<Integer> update(ID id, P pojo);
 

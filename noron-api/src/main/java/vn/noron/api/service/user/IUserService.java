@@ -30,5 +30,7 @@ public interface IUserService {
     Single<UserResponse> getDetailUser(Long id);
     Single<List<UserResponse>> getByIds(List<Long> ids);
 
+    Single<List<UserResponse>> getByEmails(List<String> emails);
+
     Single<String> deleteUser(Long id);
 }

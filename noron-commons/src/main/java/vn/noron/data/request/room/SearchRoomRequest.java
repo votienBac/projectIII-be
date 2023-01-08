@@ -38,8 +38,17 @@ public class SearchRoomRequest {
     @Data
     @Accessors(chain = true)
     public static class Search {
-        GeoCoding.Location location;
+        Location location;
         Query query;
+
+    }
+
+    @Data
+    @Accessors(chain = true)
+    public static class Location {
+        Double lng;
+        Double lat;
+        Double maxDistance;
 
     }
 

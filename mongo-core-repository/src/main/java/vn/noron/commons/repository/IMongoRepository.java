@@ -29,13 +29,15 @@ public interface IMongoRepository<T> {
 
     T getById(String id);
 
-    void delete(String id);
+    Long delete(String id);
 
     List<T> getByIds(Collection<String> ids);
 
     Long countAll();
 
     List<T> getActive();
+
+
 
     List<T> getByRangeTime(Long fromTime, Long toTime);
 

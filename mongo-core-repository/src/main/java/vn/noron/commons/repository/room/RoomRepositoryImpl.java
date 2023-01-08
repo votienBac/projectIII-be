@@ -72,6 +72,13 @@ public class RoomRepositoryImpl extends AbsMongoRepository<Room> implements IRoo
     }
 
     @Override
+    public List<Room> getAll() {
+        return mongoCollection.find(filterActive())
+                .map(document -> new JsonObject(document).mapTo(tClazz))
+                .into(new ArrayList<>());
+    }
+
+    @Override
     public Single<Long> countSearch(SearchRoomRequest request) {
         return rxSchedulerIo(() ->mongoCollection
                 .find(and(

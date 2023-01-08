@@ -19,6 +19,9 @@ public interface IRoomRepository extends IMongoRepository<Room> {
     void updatePendingRoom(String id);
 
     Single<List<Room>> search(SearchRoomRequest request, Pageable pageable);
+
+    List<Room> getAll();
+
     Single<Long> countSearch(SearchRoomRequest request);
     Single<Pair<Long, List<Room>>> getByUserId(PersonalRoomRequest request, Pageable pageable);
     Single<Pair<Long, List<Room>>> getByStatus(Pageable pageable);

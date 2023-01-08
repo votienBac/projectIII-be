@@ -33,7 +33,7 @@ public abstract class RoomMapper {
 
     @AfterMapping
     public void afterUpdateToPOJO(@MappingTarget Room target, UpdateRoomRequest source) {
-        target.setUpdatedDate(Instant.now().getEpochSecond());
+        target.setUpdatedDate(Instant.now().toEpochMilli());
     }
 
     @Named(value = "fromOhana")

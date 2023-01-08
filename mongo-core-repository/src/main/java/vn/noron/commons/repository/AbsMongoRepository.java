@@ -7,10 +7,9 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.UpdateOptions;
 
-import org.bson.BsonDocument;
+import com.mongodb.client.model.geojson.Geometry;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import vn.noron.core.json.JsonObject;
@@ -118,8 +117,9 @@ public abstract class AbsMongoRepository<T> implements IMongoRepository<T> {
     }
 
     @Override
-    public void delete(String id) {
-
+    public Long delete(String id) {
+        return mongoCollection.deleteOne(eq(_ID, id))
+                .getDeletedCount();
     }
 
     public List<T> getByIds(Collection<String> id) {
@@ -133,8 +133,12 @@ public abstract class AbsMongoRepository<T> implements IMongoRepository<T> {
 
     @Override
     public List<T> getActive() {
-        return mongoCollection.find(filterActive()).map(document -> new JsonObject(document).mapTo(tClazz)).into(new ArrayList<>());
+        return mongoCollection.find(filterActive())
+                .map(document -> new JsonObject(document).mapTo(tClazz))
+                .into(new ArrayList<>());
     }
+
+
 
     @Override
     public List<T> getByRangeTime(Long fromTime, Long toTime) {
@@ -203,18 +207,34 @@ public abstract class AbsMongoRepository<T> implements IMongoRepository<T> {
     protected Bson buildSearchQueries(String keyword) {
         return Filters.exists(_ID, true);
     }
-
+    //new Document("location", new Document("$near", new Document("$geometry", new Document("type", "Point")
+    //                .append("coordinates", Arrays.asList(105.7978418d, 21.0218805d)))
+    //            .append("$maxDistance", 1000L)));
     protected Bson buildSearchQueriesFilter(SearchRoomRequest request) {
         List<Bson> bsons = new ArrayList<>();
+        if(request.getSearch() != null
+                && request.getSearch().getLocation() != null
+                && request.getSearch().getLocation().getLat() != null
+                && request.getSearch().getLocation().getLng() != null){
+            bsons.add(new Document("location", new Document("$near", new Document("$geometry", new Document("type", "Point")
+                    .append("coordinates", Arrays.asList(request.getSearch().getLocation().getLng(),
+                            request.getSearch().getLocation().getLat())))
+                    .append("$maxDistance", request.getSearch().getLocation().getMaxDistance()))));
+        }
         if (request.getRoomLocation() != null) bsons.add(eq("room_location", request.getRoomLocation()));
         if (request.getSearch() != null
                 && request.getSearch().getQuery() != null
                 && request.getSearch().getQuery().getRoomLocationDistrict() != null)
             bsons.add(eq("room_location_district", request.getSearch().getQuery().getRoomLocationDistrict()));
         if(request.getFilter() != null){
-            if (request.getFilter().getPrice() != null)
-                bsons.add(and(gt("room_price", request.getFilter().getPrice().getFrom()),
+            if (request.getFilter().getPrice() != null){
+                if(request.getFilter().getPrice().getTo() >= 15000000)
+                    bsons.add(and(gt("room_price", request.getFilter().getPrice().getFrom())));
+                else
+                    bsons.add(and(gt("room_price", request.getFilter().getPrice().getFrom()),
                         lt("room_price", request.getFilter().getPrice().getTo())));
+            }
+
             if (request.getFilter().getRoomGender() != null)
                 bsons.add(in("room_gender", request.getFilter().getRoomGender()));
             if (request.getFilter().getRoomType() != null)

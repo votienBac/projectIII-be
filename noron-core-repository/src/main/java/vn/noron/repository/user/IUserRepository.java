@@ -1,6 +1,7 @@
 package vn.noron.repository.user;
 
 import io.reactivex.rxjava3.core.Single;
+import vn.noron.data.fcm.FcmTokenRequest;
 import vn.noron.data.model.paging.Pageable;
 import vn.noron.data.tables.pojos.Role;
 import vn.noron.data.tables.pojos.User;
@@ -18,4 +19,7 @@ public interface IUserRepository extends IBaseRepository<User, Long> {
 
     Single<List<Role>> getRolesByUsername(String username);
     Single<Optional<User>> findByEmail(String email);
+
+    Single<List<User>> findByEmails(List<String> emails);
+
 }

@@ -56,5 +56,6 @@ public class CreateRoomRequest {
     Boolean waterHeater;
     FullAddress fullAddressObject;
     GeoCoding geocodingApi;
+    GeoCoding.Location location;
 
 }

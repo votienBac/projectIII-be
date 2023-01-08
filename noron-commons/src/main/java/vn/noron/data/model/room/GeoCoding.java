@@ -19,8 +19,9 @@ public class GeoCoding {
     @Data
     @Accessors(chain = true)
     public static class Location {
-        Double lat;
         Double lng;
+        Double lat;
+
     }
 
     @Data

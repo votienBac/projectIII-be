@@ -4,6 +4,7 @@ import io.reactivex.rxjava3.core.Single;
 import org.jooq.Condition;
 import org.jooq.impl.TableImpl;
 import org.springframework.stereotype.Repository;
+import vn.noron.data.fcm.FcmTokenRequest;
 import vn.noron.data.model.paging.Pageable;
 import vn.noron.data.tables.pojos.Role;
 import vn.noron.data.tables.pojos.User;
@@ -90,4 +91,14 @@ public class UserRepositoryImpl extends AbsRepository<UserRecord, User, Long> im
                 .where(USER.EMAIL.equalIgnoreCase(email))
                 .fetchOptionalInto(User.class));
     }
+
+    @Override
+    public Single<List<User>> findByEmails(List<String> emails) {
+        return rxSchedulerIo(() -> dslContext
+                .select()
+                .from(USER)
+                .where(USER.EMAIL.in(emails))
+                .fetchInto(User.class));
+    }
+
 }

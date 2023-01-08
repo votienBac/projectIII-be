@@ -25,6 +25,11 @@ public class MongoDriverCommon {
     public MongoCollection<Document> roomCollection() {
         return apiMongoDatabase.getCollection(CollectionConstant.ROOM);
     }
+//    @Bean
+//    @ConditionalOnMissingBean(name = "messageCollection")
+//    public MongoCollection<Document> messageCollection() {
+//        return apiMongoDatabase.getCollection(CollectionConstant.MESSAGE);
+//    }
 
 
 
