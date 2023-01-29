@@ -2,6 +2,7 @@ package vn.noron.commons.repository.room;
 
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Accumulators;
 import io.reactivex.rxjava3.core.Single;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bson.Document;
@@ -10,17 +11,20 @@ import org.springframework.stereotype.Repository;
 import vn.noron.commons.repository.AbsMongoRepository;
 import vn.noron.core.json.JsonObject;
 import vn.noron.data.model.paging.Pageable;
+import vn.noron.data.model.room.CountResponse;
 import vn.noron.data.model.room.Room;
 import vn.noron.data.request.room.PersonalRoomRequest;
 import vn.noron.data.request.room.SearchRoomRequest;
 import vn.noron.repository.utils.MongoQueryUtil;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
+import static com.mongodb.client.model.Aggregates.group;
+import static com.mongodb.client.model.Aggregates.match;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Updates.combine;
 import static com.mongodb.client.model.Updates.set;
+import static java.util.stream.Collectors.toMap;
 import static vn.noron.commons.utils.ObjTransformUtils.toDocUpdate;
 import static vn.noron.core.template.RxTemplate.rxSchedulerIo;
 import static vn.noron.data.constant.GenericFieldConstant.*;
@@ -41,18 +45,17 @@ public class RoomRepositoryImpl extends AbsMongoRepository<Room> implements IRoo
 
     @Override
     public Single<List<Room>> getByIds(List<String> id) {
-
         return rxSchedulerIo(() -> {
             List<Room> rooms = mongoCollection
                     .find(and(in(_ID, id), eq(PENDING, false)))
                     .map(document -> new JsonObject(document).mapTo(tClazz))
                     .into(new ArrayList<>());
-
             return rooms;
         });
     }
+
     @Override
-    public void updatePendingRoom(String id){
+    public void updatePendingRoom(String id) {
         mongoCollection.updateOne(
                 eq(_ID, id),
                 set(PENDING, false));
@@ -72,6 +75,18 @@ public class RoomRepositoryImpl extends AbsMongoRepository<Room> implements IRoo
     }
 
     @Override
+    public Map<Long, Integer> getNumberRoomOfUsers(List<Long> userIds) {
+//        return mongoCollection.aggregate(
+//                        List.of(group("$user_id",  Accumulators.sum("count", 1)),
+//                                match(in(USER_ID, userIds))))
+//                .into(new ArrayList<>())
+//                .stream()
+//                .;
+        return new HashMap<>();
+
+    }
+
+    @Override
     public List<Room> getAll() {
         return mongoCollection.find(filterActive())
                 .map(document -> new JsonObject(document).mapTo(tClazz))
@@ -80,7 +95,7 @@ public class RoomRepositoryImpl extends AbsMongoRepository<Room> implements IRoo
 
     @Override
     public Single<Long> countSearch(SearchRoomRequest request) {
-        return rxSchedulerIo(() ->mongoCollection
+        return rxSchedulerIo(() -> mongoCollection
                 .find(and(
                         filterActive(),
                         filterPending(false),
@@ -96,7 +111,7 @@ public class RoomRepositoryImpl extends AbsMongoRepository<Room> implements IRoo
             List<Bson> bsons = new ArrayList<>();
             bsons.add(filterActive());
             bsons.add(eq(USER_ID, request.getUserId()));
-            if(request.getIsPending() != null)
+            if (request.getIsPending() != null)
                 bsons.add(filterPending(request.getIsPending()));
             FindIterable<Document> findIterable = mongoCollection
                     .find(and(bsons));

@@ -9,6 +9,7 @@ import vn.noron.data.request.room.PersonalRoomRequest;
 import vn.noron.data.request.room.SearchRoomRequest;
 
 import java.util.List;
+import java.util.Map;
 
 public interface IRoomRepository extends IMongoRepository<Room> {
     //Room createRoom(Room room);
@@ -19,6 +20,8 @@ public interface IRoomRepository extends IMongoRepository<Room> {
     void updatePendingRoom(String id);
 
     Single<List<Room>> search(SearchRoomRequest request, Pageable pageable);
+
+    Map<Long, Integer> getNumberRoomOfUsers(List<Long> userIds);
 
     List<Room> getAll();
 

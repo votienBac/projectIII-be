@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import vn.noron.apiconfig.config.exception.ApiException;
+import vn.noron.commons.repository.room.IRoomRepository;
 import vn.noron.core.exception.DBException;
 import vn.noron.data.constant.UserStatus;
 import vn.noron.data.mapper.UserMapper;
@@ -16,7 +17,6 @@ import vn.noron.data.model.paging.Pageable;
 import vn.noron.data.model.user.UserRoleDetail;
 import vn.noron.data.request.user.ChangePasswordRequest;
 import vn.noron.data.request.user.CreateUserRequest;
-import vn.noron.data.request.user.FilterUserRequest;
 import vn.noron.data.request.user.UpdateUserRequest;
 import vn.noron.data.response.user.UserResponse;
 import vn.noron.data.tables.pojos.Role;
@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toMap;
 import static vn.noron.data.constant.Constant.invalidExceptionCode;
+import static vn.noron.utils.CollectionUtils.extractField;
 import static vn.noron.utils.CollectionUtils.filterList;
 
 @Service
@@ -40,6 +41,7 @@ public class UserServiceImpl implements IUserService {
     private final IUserRepository userRepository;
     private final IRoleRepository roleRepository;
     private final IUserRoleRepository userRoleRepository;
+    private final IRoomRepository roomRepository;
     private final PasswordEncoder passwordEncoder;
     private final DSLContext dslContext;
 
@@ -47,12 +49,13 @@ public class UserServiceImpl implements IUserService {
     public UserServiceImpl(UserMapper userMapper,
                            IUserRepository userRepository,
                            IRoleRepository roleRepository,
-                           PasswordEncoder passwordEncoder,
+                           IRoomRepository roomRepository, PasswordEncoder passwordEncoder,
                            IUserRoleRepository userRoleRepository,
                            DSLContext dslContext) {
         this.userMapper = userMapper;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.roomRepository = roomRepository;
         this.userRoleRepository = userRoleRepository;
         this.passwordEncoder = passwordEncoder;
         this.dslContext = dslContext;
@@ -258,7 +261,14 @@ public class UserServiceImpl implements IUserService {
                             pageable.setTotal(total);
                             return users;
                         }))
-                .map(userMapper::toResponses);
+                .map(userMapper::toResponses)
+                .map(users -> {
+                    Map<Long, Integer> userNumberRoomMap = roomRepository.getNumberRoomOfUsers(extractField(users, UserResponse::getId));
+                    return users.stream()
+                            .map(userResponse ->
+                                    userResponse.setNumberRoom(userNumberRoomMap.getOrDefault(userResponse.getId(), 0)))
+                            .collect(Collectors.toList());
+                });
     }
 
     @Override

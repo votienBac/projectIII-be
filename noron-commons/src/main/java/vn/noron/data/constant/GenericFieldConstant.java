@@ -79,6 +79,7 @@ public class GenericFieldConstant {
     public static final String ADD_COMMENT = "add_answer";
     public static final String CHAT_SESSION = "chat_session";
     public static final String DIALOG_ID = "dialog_id";
+
     public static final String MEDIA_URL = "media_url";
     public static final String NUM_COIN = "num_coin";
     public static final String ANONYMOUS = "anonymous";

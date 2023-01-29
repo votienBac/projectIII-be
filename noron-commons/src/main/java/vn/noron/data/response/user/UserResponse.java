@@ -18,4 +18,6 @@ public class UserResponse {
     @JsonIgnore
     private String password;
     List<String> roles;
+    private Integer numberRoom;
+    private Integer numBeReported;
 }
