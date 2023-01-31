@@ -10,5 +10,7 @@ import java.util.List;
 public interface IReportRoomService {
     Single<String> insert(ReportRoomRequest request);
 
+    Single<List<ReportRoomResponse>> getPageable(Pageable pageable, String keyword);
+
     Single<List<ReportRoomResponse>> getAllReportOfRoom(String roomId, Pageable pageable);
 }

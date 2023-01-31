@@ -13,7 +13,7 @@ spring:
     enabled: true
     proxy: false
     connect-timeout: 30000
-    request-timeout: 30000
+    request-timeout: 60000
     socket-timeout: 60000
     max-total-connections: 50
     default-keep-alive-time-millis: 20000

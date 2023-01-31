@@ -45,7 +45,7 @@ public class UserRepositoryImpl extends AbsRepository<UserRecord, User, Long> im
         };
         return rxSchedulerIo(() -> dslContext.selectCount()
                 .from(USER)
-                .join(USER_ROLE).on(USER.ID.eq(USER_ROLE.USER_ID))
+                .leftJoin(USER_ROLE).on(USER.ID.eq(USER_ROLE.USER_ID))
                 .where(conditionVar.condition.and(USER.DELETED_AT.isNull()))
                 .fetchOneInto(Long.class));
     }
@@ -57,7 +57,7 @@ public class UserRepositoryImpl extends AbsRepository<UserRecord, User, Long> im
         return rxSchedulerIo(() -> {
             final List<User> users = dslContext.select(USER.fields())
                     .from(USER)
-                    .join(USER_ROLE).on(USER.ID.eq(USER_ROLE.USER_ID))
+                    .leftJoin(USER_ROLE).on(USER.ID.eq(USER_ROLE.USER_ID))
                     .where(conditionVar.condition.and(USER.DELETED_AT.isNull()))
                     .orderBy(toSortField(pageable.getSort(), getTable().fields()))
                     .offset(pageable.getOffset())

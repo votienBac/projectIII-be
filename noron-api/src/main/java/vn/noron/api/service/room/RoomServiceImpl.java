@@ -2,7 +2,6 @@ package vn.noron.api.service.room;
 
 import io.reactivex.rxjava3.core.Single;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import vn.noron.api.service.user.IUserService;
@@ -19,31 +18,33 @@ import vn.noron.data.request.room.UpdateRoomRequest;
 import vn.noron.data.response.room.RoomResponse;
 import vn.noron.data.response.user.UserResponse;
 import vn.noron.data.tables.pojos.FavoriteRoom;
+import vn.noron.data.tables.pojos.ReportRoom;
 import vn.noron.repository.favoriteroom.IFavoriteRoomRepository;
+import vn.noron.repository.reportroom.IReportRoomRepository;
 import vn.noron.utils.authentication.AuthenticationUtils;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static vn.noron.utils.CollectionUtils.collectToMap;
-import static vn.noron.utils.CollectionUtils.extractField;
+import static vn.noron.utils.CollectionUtils.*;
 
 @Service
 public class RoomServiceImpl implements IRoomService {
     private final IRoomRepository roomRepository;
     private final IFavoriteRoomRepository favoriteRoomRepository;
+    private final IReportRoomRepository reportRoomRepository;
     private final IUserService userService;
     private final RoomMapper roomMapper;
 
     public RoomServiceImpl(IRoomRepository roomRepository,
                            IFavoriteRoomRepository favoriteRoomRepository,
-                           IUserService userService,
+                           IReportRoomRepository reportRoomRepository, IUserService userService,
                            RoomMapper roomMapper) {
         this.roomRepository = roomRepository;
         this.favoriteRoomRepository = favoriteRoomRepository;
+        this.reportRoomRepository = reportRoomRepository;
         this.userService = userService;
         this.roomMapper = roomMapper;
     }
@@ -124,7 +125,14 @@ public class RoomServiceImpl implements IRoomService {
 
                             return Pair.of(rooms, favoriteRoomIds);
                         })
-                .flatMap(pair -> mapRoomOwner(pair.getLeft(), pair.getRight()));
+                .flatMap(pair -> Single.zip(mapRoomOwner(pair.getLeft(), pair.getRight()),
+                        reportRoomRepository.getAllByRoomIds(extractField(pair.getLeft(), Room::getId)),
+                        ((roomResponses, reportRooms) -> {
+                            Map<String, Long> mapRoomWithNumberReport = groupCount(reportRooms, reportRoom -> reportRoom.getId() != null, ReportRoom::getRoomId);
+                            return roomResponses.stream()
+                                    .map(roomResponse -> roomResponse.setNumberReport(mapRoomWithNumberReport.getOrDefault(roomResponse.getId(), 0l)))
+                                    .collect(Collectors.toList());
+                        })));
     }
 
     private Single<List<String>> getFavoriteOfUser(Long userId) {

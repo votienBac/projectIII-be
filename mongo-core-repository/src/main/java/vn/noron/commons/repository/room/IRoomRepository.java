@@ -23,6 +23,8 @@ public interface IRoomRepository extends IMongoRepository<Room> {
 
     Map<Long, Integer> getNumberRoomOfUsers(List<Long> userIds);
 
+    Single<List<Room>>  getByUserIds(List<Long> userIds);
+
     List<Room> getAll();
 
     Single<Long> countSearch(SearchRoomRequest request);

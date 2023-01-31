@@ -2,7 +2,6 @@ package vn.noron.commons.repository.room;
 
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Accumulators;
 import io.reactivex.rxjava3.core.Single;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bson.Document;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import vn.noron.commons.repository.AbsMongoRepository;
 import vn.noron.core.json.JsonObject;
 import vn.noron.data.model.paging.Pageable;
-import vn.noron.data.model.room.CountResponse;
 import vn.noron.data.model.room.Room;
 import vn.noron.data.request.room.PersonalRoomRequest;
 import vn.noron.data.request.room.SearchRoomRequest;
@@ -20,7 +18,6 @@ import vn.noron.repository.utils.MongoQueryUtil;
 import java.util.*;
 
 import static com.mongodb.client.model.Aggregates.group;
-import static com.mongodb.client.model.Aggregates.match;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Updates.combine;
 import static com.mongodb.client.model.Updates.set;
@@ -84,6 +81,13 @@ public class RoomRepositoryImpl extends AbsMongoRepository<Room> implements IRoo
 //                .;
         return new HashMap<>();
 
+    }
+    @Override
+    public Single<List<Room>> getByUserIds(List<Long> userIds){
+        return rxSchedulerIo(() -> mongoCollection
+                .find(and(filterActive(), in(USER_ID, userIds)))
+                .map(document -> new JsonObject(document).mapTo(tClazz))
+                .into(new ArrayList<>()));
     }
 
     @Override

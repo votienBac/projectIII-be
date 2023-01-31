@@ -21,7 +21,7 @@ public interface IRoomService {
     Single<String> deleteRoom(String id, Authentication authentication);
 
     Single<RoomResponse> roomDetail(String id, Long userId);
-    Single<List<RoomResponse>>  search(SearchRoomRequest request, Pageable pageable);
+    Single<List<RoomResponse>> search(SearchRoomRequest request, Pageable pageable);
 
     Single<List<RoomResponse>> getByIDS(List<String> roomIds);
 

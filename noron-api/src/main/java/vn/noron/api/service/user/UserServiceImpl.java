@@ -14,6 +14,7 @@ import vn.noron.core.exception.DBException;
 import vn.noron.data.constant.UserStatus;
 import vn.noron.data.mapper.UserMapper;
 import vn.noron.data.model.paging.Pageable;
+import vn.noron.data.model.room.Room;
 import vn.noron.data.model.user.UserRoleDetail;
 import vn.noron.data.request.user.ChangePasswordRequest;
 import vn.noron.data.request.user.CreateUserRequest;
@@ -30,10 +31,9 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.*;
 import static vn.noron.data.constant.Constant.invalidExceptionCode;
-import static vn.noron.utils.CollectionUtils.extractField;
-import static vn.noron.utils.CollectionUtils.filterList;
+import static vn.noron.utils.CollectionUtils.*;
 
 @Service
 public class UserServiceImpl implements IUserService {
@@ -237,10 +237,12 @@ public class UserServiceImpl implements IUserService {
                 .flatMap(user -> userRepository.update(request.getId(), user))
                 .map(integer -> integer == 1 ? "SUCCESS" : "FAIL");
     }
+
     public Single<Map<Long, List<String>>> getUserIdRoleNameMap(List<Long> userIds) {
         return userRoleRepository.findDetailByUserIds(userIds)
                 .map(userRoleDetails -> toRoleNameMap(userIds, userRoleDetails));
     }
+
     private Map<Long, List<String>> toRoleNameMap(List<Long> userIds, List<UserRoleDetail> userRoleDetails) {
         return userIds.stream()
                 .collect(toMap(
@@ -252,6 +254,7 @@ public class UserServiceImpl implements IUserService {
                                 .map(userRoleDetail -> userRoleDetail.getName())
                                 .collect(Collectors.toList())));
     }
+
     @Override
     public Single<List<UserResponse>> getUserWithPageable(Pageable pageable, String keyword) {
         return Single.zip(
@@ -262,13 +265,28 @@ public class UserServiceImpl implements IUserService {
                             return users;
                         }))
                 .map(userMapper::toResponses)
-                .map(users -> {
-                    Map<Long, Integer> userNumberRoomMap = roomRepository.getNumberRoomOfUsers(extractField(users, UserResponse::getId));
-                    return users.stream()
+                .flatMap(users -> roomRepository.getByUserIds(extractField(users, UserResponse::getId))
+                        .map(rooms -> Pair.of(users, rooms)))
+                .map(listListPair -> {
+                    Map<Long, Long> userNumberRoomMap = mapUserWithNumberRoom(listListPair.getRight());
+                    Map<Long, Long> userNumberRoomReportMap = mapUserWithNumberRoomBeReported(listListPair.getRight());
+                    return listListPair.getLeft().stream()
                             .map(userResponse ->
-                                    userResponse.setNumberRoom(userNumberRoomMap.getOrDefault(userResponse.getId(), 0)))
+                                    userResponse.setNumberRoom(userNumberRoomMap.getOrDefault(userResponse.getId(), 0l))
+                                            .setNumberReported(userNumberRoomReportMap.getOrDefault(userResponse.getId(), 0l)))
                             .collect(Collectors.toList());
                 });
+    }
+
+    public Map<Long, Long> mapUserWithNumberRoom(List<Room> rooms) {
+        return rooms.stream()
+                .collect(groupingBy(Room::getUserId, counting()));
+
+    }
+
+    public Map<Long, Long> mapUserWithNumberRoomBeReported(List<Room> rooms) {
+        return groupCount(rooms, room -> room.getBeReported().equals(true), Room::getUserId);
+
     }
 
     @Override
@@ -289,7 +307,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public Single<List<UserResponse>> getByIds(List<Long> ids) {
         return userRepository.findAllById(ids)
-                        .map(userMapper::toResponses);
+                .map(userMapper::toResponses);
 
     }
 

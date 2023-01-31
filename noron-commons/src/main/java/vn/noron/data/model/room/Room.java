@@ -55,6 +55,7 @@ public class Room {
     Boolean window;
     Boolean waterHeater;
     Object pending;
+    Boolean beReported;
 
     Boolean isVerified;
     GeoCoding.Location location;

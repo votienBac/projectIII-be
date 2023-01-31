@@ -55,7 +55,7 @@ public class RoomResponse {
     Boolean window;
     Boolean waterHeater;
     Object pending;
-
+    Long numberReport;
     Boolean isVerified;
     Boolean isFavoriteRoom = false;
     FullAddress fullAddressObject;
