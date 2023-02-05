@@ -2,7 +2,7 @@ server:
   port: 9090
 spring:
   profiles:
-    include: default,core-postgres,redis
+    include: default,core-postgres,redis,momo
   jackson:
     property-naming-strategy: SNAKE_CASE
     deserialization:

@@ -1,0 +1,9 @@
+momo:
+  secret-key: t3peMimkApIbCe0I15za50AxXiDCIvOF
+  access-key: O44xdKYZjl7rJxqM
+  partner-code: MOMOTTDX20220714
+  partner-name: motel - Cổng thông tin
+  redirect-url : http://localhost:8085/api/v1/momo/update-result
+  ipn-url:  https://motel-dev/api/v1/momo/update-result
+  order-info: Pay with Momo
+  request-type: captureWallet

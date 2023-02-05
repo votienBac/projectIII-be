@@ -4,7 +4,7 @@ api-url:
   get-all-ohana: https://www.ohanaliving.vn/api/web/rooms/search
 spring:
   profiles:
-    include: default, core-postgres
+    include: default, core-postgres, momo
   jackson:
     property-naming-strategy: SNAKE_CASE
     deserialization:
