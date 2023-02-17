@@ -7,6 +7,7 @@ import org.jooq.impl.TableImpl;
 import org.jooq.impl.TableRecordImpl;
 import org.jooq.impl.UpdatableRecordImpl;
 import vn.noron.core.json.JsonArray;
+import vn.noron.data.constant.Constant;
 import vn.noron.data.model.Filter;
 import vn.noron.data.model.paging.Order;
 import vn.noron.data.model.query.Operator;
@@ -24,6 +25,7 @@ import static vn.noron.core.json.JsonObject.mapFrom;
 import static vn.noron.data.model.paging.Order.Direction.asc;
 import static vn.noron.data.model.query.Operator.IN;
 import static vn.noron.data.model.query.Operator.NIN;
+import static vn.noron.utils.StringUtil.*;
 import static vn.noron.utils.TimeUtil.longToLocalDateTime;
 
 public class MysqlUtil {
@@ -131,7 +133,43 @@ public class MysqlUtil {
                 });
         return condition[0];
     }
+    public static <R extends Record> Condition buildTsVectorCondition(Field tableField, String keyword){
+        return DSL.field("(select to_tsvector('simple',vn_unaccent({0})) @@ to_tsquery('simple',{1}))",
+                Boolean.class,
+                tableField, DSL.inline(keyword)).eq(true);
+    }
+    public static String buildStringFullTextSearch(String keyword){
+        List<String> strings = splitStringToListStringWithAccent(keyword, " ");
+        return concatListStringToStringWithAccent(strings, "&").concat(":*");
 
+    }
+    public static <R extends Record> Condition buildSearchQueries(TableImpl<R> table, String keyword, List<String> searchColumns){
+        if(isEmpty(keyword)) return DSL.noCondition();
+        final Condition[] condition = {(DSL.noCondition())};
+
+        Arrays.stream(table.fields())
+                .filter(field -> searchColumns.contains(field.getName()))
+                .filter(field -> !Constant.Table.SEARCH_COLUMN_IGNORES.contains(field.getName()))
+                .filter(field -> String.class.isAssignableFrom(field.getType()))
+                .forEach(field -> condition[0] = condition[0].or((buildTsVectorCondition(field,
+                        buildStringFullTextSearch(removeAccent(keyword))))));
+
+        return condition[0];
+    }
+    public static <R extends Record> Condition buildSearchQueries(Map<TableImpl, List<String>> mapTableColumns , String keyword){
+        if(isEmpty(keyword)) return DSL.noCondition();
+        final Condition[] condition = {DSL.noCondition()};
+        mapTableColumns.keySet().stream().forEach(table ->{
+            Arrays.stream(table.fields())
+                    .filter(field -> mapTableColumns.get(table).contains(field.getName()))
+                    .filter(field -> !Constant.Table.SEARCH_COLUMN_IGNORES.contains(field.getName()))
+                    .filter(field -> String.class.isAssignableFrom(field.getType()))
+                    .forEach(field -> condition[0] = condition[0].or(buildTsVectorCondition(field,
+                            buildStringFullTextSearch(removeAccent(keyword)))));
+        });
+
+        return condition[0];
+    }
     public static <R extends Record> Condition buildSearchQueries(TableImpl<R> table, String keyword) {
         if (isEmpty(keyword)) return DSL.noCondition();
         final Condition[] condition = {DSL.noCondition()};

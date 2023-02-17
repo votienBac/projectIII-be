@@ -1,6 +1,7 @@
 package vn.noron.repository.user;
 
 import io.reactivex.rxjava3.core.Single;
+import org.apache.commons.lang3.ObjectUtils;
 import org.jooq.Condition;
 import org.jooq.impl.TableImpl;
 import org.springframework.stereotype.Repository;
@@ -41,24 +42,40 @@ public class UserRepositoryImpl extends AbsRepository<UserRecord, User, Long> im
     @Override
     public Single<Long> filterAndSearchCount(String keyword) {
         var conditionVar = new Object() {
-            Condition condition = buildSearchQueries(getTable(), keyword);
+            Condition condition = buildSearchQueries(getTable(), keyword,
+                    List.of(USER.USERNAME.getName(),
+                            USER.FULL_NAME.getName(),
+                            USER.EMAIL.getName(),
+                            USER.PHONE_NUMBER.getName()));
         };
-        return rxSchedulerIo(() -> dslContext.selectCount()
-                .from(USER)
-                .leftJoin(USER_ROLE).on(USER.ID.eq(USER_ROLE.USER_ID))
-                .where(conditionVar.condition.and(USER.DELETED_AT.isNull()))
-                .fetchOneInto(Long.class));
+        return rxSchedulerIo(() -> {
+            List<Long> projectIds = dslContext.select(USER.ID)
+                    .from(USER)
+                    .leftJoin(USER_ROLE).on(USER.ID.eq(USER_ROLE.USER_ID))
+                    .where(conditionVar.condition)
+                    .and(USER.DELETED_AT.isNull())
+                    .groupBy(USER.ID)
+                    .fetchInto(Long.class);
+            if (ObjectUtils.isNotEmpty(projectIds)) return Long.valueOf(projectIds.size());
+            return 0l;
+        });
+
     }
     @Override
     public Single<List<User>> filterAndPageable(String keyword, Pageable pageable) {
         var conditionVar = new Object() {
-            Condition condition = buildSearchQueries(getTable(), keyword);
+            Condition condition = buildSearchQueries(getTable(), keyword,
+                    List.of(USER.USERNAME.getName(),
+                            USER.FULL_NAME.getName(),
+                            USER.EMAIL.getName(),
+                            USER.PHONE_NUMBER.getName()));
         };
         return rxSchedulerIo(() -> {
             final List<User> users = dslContext.select(USER.fields())
                     .from(USER)
                     .leftJoin(USER_ROLE).on(USER.ID.eq(USER_ROLE.USER_ID))
-                    .where(conditionVar.condition.and(USER.DELETED_AT.isNull()))
+                    .where(conditionVar.condition)
+                    .and(USER.DELETED_AT.isNull())
                     .orderBy(toSortField(pageable.getSort(), getTable().fields()))
                     .offset(pageable.getOffset())
                     .limit(pageable.getPageSize() + 1)
