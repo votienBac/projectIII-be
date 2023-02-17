@@ -163,6 +163,9 @@ public abstract class AbsMongoRepository<T> implements IMongoRepository<T> {
     protected Bson filterActive() {
         return Filters.exists(_ID, true);
     }
+    protected Bson filterIsPaid() {
+        return eq(ISPAID, false);
+    }
     protected Bson filterPending(Boolean isPending) {
         return eq(PENDING, isPending);
     }

@@ -58,6 +58,7 @@ public class Room {
     Boolean beReported;
 
     Boolean isVerified;
+    Boolean isPaid;
     GeoCoding.Location location;
     FullAddress fullAddressObject;
     //@JsonProperty("geocodingApi")

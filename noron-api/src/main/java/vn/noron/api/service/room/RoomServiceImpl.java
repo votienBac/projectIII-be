@@ -65,6 +65,18 @@ public class RoomServiceImpl implements IRoomService {
                 });
 
     }
+
+    @Override
+    public Single<String> deleteRoom(String roomId) {
+        return null;
+    }
+
+    @Override
+    public void updateIsPaidRoom(String roomId, Boolean isPaid) {
+        roomRepository.updateRoom(roomRepository.getById(roomId).setIsPaid(isPaid));
+
+    }
+
     //@PostConstruct
     //@Scheduled(cron = "0 15 0 0 0 0")
     public void updateLocationForRoom() {

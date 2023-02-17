@@ -1,31 +1,47 @@
 package vn.noron.api.service.ordermomo;
 
 import com.google.common.hash.Hashing;
+import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Single;
 import okhttp3.OkHttpClient;
+import org.apache.commons.lang3.tuple.Pair;
+import org.jooq.Record;
+import org.jooq.SelectConditionStep;
 import org.springframework.stereotype.Service;
+import vn.noron.api.service.room.IRoomService;
 import vn.noron.api.service.user.IUserService;
 import vn.noron.apiconfig.config.exception.ApiException;
 import vn.noron.config.MomoConfig;
 import vn.noron.core.json.JsonObject;
 import vn.noron.data.mapper.order.OrderMapper;
 import vn.noron.data.mapper.ordermomo.OrderMomoMapper;
+import vn.noron.data.model.paging.Pageable;
 import vn.noron.data.request.order.OrderRequest;
 import vn.noron.data.response.momo.MomoResponse;
+import vn.noron.data.response.order.OrderResponse;
 import vn.noron.data.response.order_momo.OrderMomoResponse;
+import vn.noron.data.response.room.RoomResponse;
+import vn.noron.data.response.user.UserResponse;
 import vn.noron.data.tables.pojos.*;
 import vn.noron.repository.order.IOrderMomoRepository;
 import vn.noron.repository.order.IOrderRepository;
 import vn.noron.repository.order.IOrderTransactionRepository;
 import vn.noron.repository.user.IUserRepository;
 import vn.noron.service.OkHttpService;
+import vn.noron.utils.CollectionUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static vn.noron.core.template.RxTemplate.rxSchedulerIo;
+import static vn.noron.data.Tables.FAVORITE_ROOM;
 import static vn.noron.data.constant.MomoConstant.*;
+import static vn.noron.repository.utils.MysqlUtil.toSortField;
+import static vn.noron.utils.CollectionUtils.*;
 
 
 @Service
@@ -36,6 +52,7 @@ public class OrderMomoService implements IOrderMomoService {
     private final IOrderTransactionRepository orderTransactionRepository;
     private final OrderMapper orderMapper;
     private final IOrderMomoRepository orderMomoRepository;
+    private final IRoomService roomService;
     private final IUserService userService;
     private final IUserRepository userRepository;
 
@@ -45,7 +62,7 @@ public class OrderMomoService implements IOrderMomoService {
                             IOrderTransactionRepository orderTransactionRepository,
                             OrderMapper orderMapper,
                             IOrderMomoRepository orderMomoRepository,
-                            IUserService userService,
+                            IRoomService roomService, IUserService userService,
                             IUserRepository userRepository) {
         this.orderMomoMapper = orderMomoMapper;
         this.momoConfig = momoConfig;
@@ -53,6 +70,7 @@ public class OrderMomoService implements IOrderMomoService {
         this.orderTransactionRepository = orderTransactionRepository;
         this.orderMapper = orderMapper;
         this.orderMomoRepository = orderMomoRepository;
+        this.roomService = roomService;
         this.userService = userService;
         this.userRepository = userRepository;
     }
@@ -62,12 +80,12 @@ public class OrderMomoService implements IOrderMomoService {
 
         if (orderRequest.getUserId() == null)
             return Single.error(new ApiException("you haven't permission"));
-//        if(!checkPhone(orderRequest.getPhoneNumber())){
-//            return Single.error(new ApiException(INVALID_PHONE, HttpStatus.SC_BAD_REQUEST));
-//        }
-//        if(!checkEmail(orderRequest.getEmail())){
-//            return Single.error(new ApiException(INVALID_EMAIL, HttpStatus.SC_BAD_REQUEST));
-//        }
+        if (orderRequest.getRoom().getIsPaid()) {
+            return Single.error(new ApiException("room is deposited"));
+        }
+        if (!orderRequest.getRoom().getIsVerified()) {
+            return Single.error(new ApiException("room isn't belong to admin"));
+        }
         if (!orderRequest.getTotal().equals(orderRequest.getRoom().getDeposit()))
             return Single.error(new ApiException("invalid order"));
 
@@ -79,13 +97,12 @@ public class OrderMomoService implements IOrderMomoService {
                 .setCreatedAt(OffsetDateTime.now());
         return userRepository.findById(orderRequest.getUserId())
                 .flatMap(user -> {
-                    if (!user.isPresent()) return Single.error(new ApiException("User not found!"));
-                    return orderRepository.insertReturning(order)
+                    return user.map(value -> orderRepository.insertReturning(order)
                             .flatMap(orderReturn -> this.checkOrderId(order.getTotal(),
                                     orderReturn.get().getId(),
                                     orderRequest,
-                                    user.get(),
-                                    callBackUrl));
+                                    value,
+                                    callBackUrl))).orElseGet(() -> Single.error(new ApiException("User not found!")));
                 });
     }
 
@@ -93,6 +110,42 @@ public class OrderMomoService implements IOrderMomoService {
     public Single<MomoResponse> createOrder(OrderRequest orderRequest, String callBackUrl) {
         return saveOrderToDb(orderRequest, callBackUrl)
                 .flatMap(OrderMomoService::createOrderFromMomo);
+    }
+
+    @Override
+    public Single<List<OrderResponse>> getOrderOfUser(Long userId, Pageable pageable) {
+        return orderRepository.getByUserId(userId, pageable)
+                .flatMap(longListPair -> {
+                    pageable.setTotal(longListPair.getLeft());
+                    return mapToResponse(longListPair.getRight());
+                });
+
+
+    }
+
+    @Override
+    public Single<List<OrderResponse>> getOrder(Pageable pageable) {
+        return orderRepository.getAll(pageable)
+                .flatMap(longListPair -> {
+                    pageable.setTotal(longListPair.getLeft());
+                    return mapToResponse(longListPair.getRight());
+                });
+    }
+
+    public Single<List<OrderResponse>> mapToResponse(List<Order> orders) {
+        List<String> roomIds = extractField(orders, Order::getRoomId);
+        List<Long> userIds = extractField(orders, Order::getUserId);
+        return Single.zip(roomService.getByIDS(roomIds),
+                userService.getByIds(userIds),
+                (roomResponses, userResponses) -> {
+                    Map<String, RoomResponse> roomMap = collectToMap(roomResponses, RoomResponse::getId);
+                    Map<Long, UserResponse> userMap = collectToMap(userResponses, UserResponse::getId);
+                    return orderMapper.toResponses(orders)
+                            .stream()
+                            .map(orderResponse -> orderResponse.setRoomResponse(roomMap.get(orderResponse.getRoomId()))
+                                    .setOwner(userMap.get(orderResponse.getUserId())))
+                            .collect(Collectors.toList());
+                });
     }
 
     public static Single<MomoResponse> createOrderFromMomo(OrderMomoResponse orderMomoResponse) {
@@ -164,7 +217,6 @@ public class OrderMomoService implements IOrderMomoService {
                 "&requestType=" + momoConfig.getRequestType();
         return Hashing.hmacSha256(secret.getBytes()).hashString(key, StandardCharsets.UTF_8).toString();
     }
-
 
 
 }

@@ -191,7 +191,6 @@ public class UserServiceImpl implements IUserService {
                 .flatMap(user -> {
                     user.setBanAt(null);
                     user.setStatus(UserStatus.ACTIVE.getStatus());
-
                     return userRepository.update(id, user);
                 })
                 .flatMap(integer -> userRepository.findById(id))

@@ -57,6 +57,7 @@ public class RoomResponse {
     Object pending;
     Long numberReport;
     Boolean isVerified;
+    Boolean isPaid;
     Boolean isFavoriteRoom = false;
     FullAddress fullAddressObject;
 

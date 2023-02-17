@@ -16,7 +16,8 @@ public interface IRoomService {
 
     Single<Room> createRoom(CreateRoomRequest request);
     Single<String> updateRoom(UpdateRoomRequest request);
-
+    Single<String> deleteRoom(String roomId);
+    void updateIsPaidRoom(String roomId, Boolean isPaid);
     Single<String> censorshipRoom(String id);
     Single<String> deleteRoom(String id, Authentication authentication);
 

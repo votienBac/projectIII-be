@@ -80,8 +80,11 @@ public class MomoService implements IMomoService {
                         .map(order -> orderMapper.toResponse(order.get())))
                 .flatMap(orderResponse -> Single.zip(roomService.roomDetail(orderResponse.getRoomId(), orderResponse.getUserId()),
                         userService.getDetailUser(orderResponse.getUserId()),
-                        ((roomResponse, userResponse) -> orderResponse.setRoomResponse(roomResponse)
-                                .setOwner(userResponse))));
+                        ((roomResponse, userResponse) -> {
+                            roomService.updateIsPaidRoom(roomResponse.getId(), momoResult.paymentSuccess());
+                            return orderResponse.setRoomResponse(roomResponse)
+                                    .setOwner(userResponse);
+                        })));
 //        }
 //        return Single.just(new MessageResponse()
 //                .setMessage(getStatus().get("status" + momoResult.getResultCode())));

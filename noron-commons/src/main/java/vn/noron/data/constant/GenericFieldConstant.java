@@ -6,6 +6,7 @@ public class GenericFieldConstant {
     }
 
     public static final String _ID = "_id";
+    public static final String ISPAID = "is_paid";
     public static final String PENDING = "pending";
 
     public static final String ID = "id";

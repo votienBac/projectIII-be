@@ -63,6 +63,8 @@ public class RoomRepositoryImpl extends AbsMongoRepository<Room> implements IRoo
     public Single<List<Room>> search(SearchRoomRequest request, Pageable pageable) {
         return rxSchedulerIo(() -> mongoCollection
                 .find(and(filterActive(),
+                        filterIsPaid(),
+                        filterPending(false),
                         buildSearchQueriesFilter(request)))
                 .sort(MongoQueryUtil.sort(pageable.getSort()))
                 .skip(pageable.getOffset())
@@ -103,6 +105,7 @@ public class RoomRepositoryImpl extends AbsMongoRepository<Room> implements IRoo
                 .find(and(
                         filterActive(),
                         filterPending(false),
+                        filterIsPaid(),
                         buildSearchQueriesFilter(request)))
                 .map(document -> new JsonObject(document).mapTo(tClazz))
                 .into(new ArrayList<>())

@@ -1,8 +1,12 @@
 package vn.noron.data.mapper.order;
 
+import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Named;
 import vn.noron.data.response.order.OrderResponse;
 import vn.noron.data.tables.pojos.Order;
+
+import java.util.List;
 
 @Mapper(componentModel = "spring")
 public abstract class OrderMapper  {
@@ -10,7 +14,10 @@ public abstract class OrderMapper  {
 //    @Autowired
 //    private UserMapper userMapper;
 //
+    @Named("toResponse")
     public abstract OrderResponse toResponse(Order order);
+    @IterableMapping(qualifiedByName = "toResponse")
+    public abstract List<OrderResponse> toResponses(List<Order> orders);
 //
 //    @AfterMapping
 //    protected void map(@MappingTarget OrderResponse orderResponse, Order order, @Context User owner, @Context Coupon coupon) {
