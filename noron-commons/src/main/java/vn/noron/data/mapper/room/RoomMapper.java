@@ -1,6 +1,7 @@
 package vn.noron.data.mapper.room;
 
 import org.mapstruct.*;
+import vn.noron.data.model.room.GeoCoding;
 import vn.noron.data.model.room.Room;
 import vn.noron.data.model.room.RoomOhana;
 import vn.noron.data.request.room.CreateRoomRequest;
@@ -19,7 +20,7 @@ public abstract class RoomMapper {
     @AfterMapping
     public void afterToPOJO(@MappingTarget Room target, CreateRoomRequest source) {
         target.setDisabled(false);
-        target.setCreatedDate(Instant.now().getEpochSecond());
+        target.setCreatedDate(Instant.now().toEpochMilli());
         if(source.getIsAdmin()) {
             target.setPending(false);
             target.setIsVerified(true);
@@ -28,6 +29,14 @@ public abstract class RoomMapper {
             target.setIsVerified(false);
             target.setPending(true);
         }
+        target.setBeReported(false);
+        target.setIsPaid(false);
+    }
+
+    public static void main(String[] args) {
+        long x = Instant.now().toEpochMilli();
+        long y = Instant.now().getEpochSecond();
+        System.out.println(1);
     }
     public abstract Room toPOJO(UpdateRoomRequest source);
 
@@ -49,6 +58,13 @@ public abstract class RoomMapper {
                         .setOriginal(s)
                         .setThumbnail(s))
                 .collect(Collectors.toList()));
+        target.setUserId(1l);
+        target.setIsVerified(true);
+        target.setBeReported(false);
+        target.setIsPaid(false);
+        target.setPending(false);
+        target.setLocation(new GeoCoding.Location().setLng(source.getGeocodingApi().getLocation().getLng())
+                .setLat(source.getGeocodingApi().getLocation().getLat()));
     }
 
     @Named(value = "toResponse")

@@ -8,6 +8,7 @@ import org.jooq.impl.DSL;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import vn.noron.api.service.room.IRoomService;
 import vn.noron.apiconfig.config.exception.ApiException;
 import vn.noron.commons.repository.room.IRoomRepository;
 import vn.noron.core.exception.DBException;
@@ -51,13 +52,14 @@ public class UserServiceImpl implements IUserService {
                            IRoleRepository roleRepository,
                            IRoomRepository roomRepository, PasswordEncoder passwordEncoder,
                            IUserRoleRepository userRoleRepository,
-                           DSLContext dslContext) {
+                            DSLContext dslContext) {
         this.userMapper = userMapper;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.roomRepository = roomRepository;
         this.userRoleRepository = userRoleRepository;
         this.passwordEncoder = passwordEncoder;
+
         this.dslContext = dslContext;
     }
 
@@ -100,6 +102,11 @@ public class UserServiceImpl implements IUserService {
                 .map(userRoles -> userRoles.stream().map(UserRole::getRoleId).collect(Collectors.toList()))
                 .flatMap(roleRepository::findAllById)
                 .map(roles -> roles.stream().map(Role::getName).collect(Collectors.toList())).blockingGet();
+    }
+
+    public Single<String> getAllRoomOfUserAndUpdateStatus(Long userId, Boolean disabled) {
+        return roomRepository.getByUserId(userId)
+                .map(rooms -> roomRepository.updateStatus(extractField(rooms, Room::getId), disabled));
     }
 
     @Override
@@ -182,7 +189,9 @@ public class UserServiceImpl implements IUserService {
                     user.setBanAt(OffsetDateTime.now());
                     user.setStatus(UserStatus.INACTIVE.getStatus());
                     return userRepository.update(id, user);
-                }).flatMap(integer -> userRepository.findById(id)).map(user -> userMapper.toResponse(user.get()));
+                }).flatMap(integer -> Single.zip(userRepository.findById(id),
+                        getAllRoomOfUserAndUpdateStatus(id, true),
+                        (user, s) -> userMapper.toResponse(user.get())));
     }
 
     @Override
@@ -193,8 +202,9 @@ public class UserServiceImpl implements IUserService {
                     user.setStatus(UserStatus.ACTIVE.getStatus());
                     return userRepository.update(id, user);
                 })
-                .flatMap(integer -> userRepository.findById(id))
-                .map(user -> userMapper.toResponse(user.get()));
+                .flatMap(integer -> Single.zip(userRepository.findById(id),
+                                getAllRoomOfUserAndUpdateStatus(id, false),
+                                (user, s) -> userMapper.toResponse(user.get())));
     }
 
     public Single<User> checkExistsAccountById(Long id) {
@@ -319,8 +329,8 @@ public class UserServiceImpl implements IUserService {
     @Override
     public Single<String> deleteUser(Long id) {
         return checkExistsAccountById(id)
-                .flatMap(user -> userRepository.deletedById(id).
-                        map(integer -> "DELETE SUCCESS"));
+                .flatMap(user -> userRepository.deletedById(id))
+                .flatMap(integer -> getAllRoomOfUserAndUpdateStatus(id, true));
     }
 
 

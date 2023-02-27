@@ -61,7 +61,7 @@ public class UserProfileServiceImpl implements IUserProfileService {
         if(userRolePair.getLeft().isPresent()){
             final User user = userRolePair.getLeft().get();
             return rxSchedulerIo(() -> {
-                if (user.getStatus().equals(UserStatus.INACTIVE.getStatus()) || user.getBanAt() != null)
+                if (user.getStatus().equals(UserStatus.INACTIVE.getStatus()))
                     throw new ApiException(USER_INACTIVE);
                 final boolean isValidPass = BCrypt.checkpw(loginRequest.getPassword(), user.getPassword());
                 if (!isValidPass) throw new ApiException(INVALID_USERNAME_PASS, UNAUTHORIZED.value());

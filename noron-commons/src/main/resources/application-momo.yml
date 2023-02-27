@@ -1,7 +1,7 @@
 momo:
-  secret-key: t3peMimkApIbCe0I15za50AxXiDCIvOF
-  access-key: O44xdKYZjl7rJxqM
-  partner-code: MOMOTTDX20220714
+  secret-key: tSRJFmBuk17XxZISnxOPPqVdHaHKqIus
+  access-key: SyaKG6ZVcW9AjdGw
+  partner-code: MOMOWAIL20221114
   partner-name: motel - Cổng thông tin
   redirect-url : http://localhost:8085/api/v1/momo/update-result
   ipn-url:  https://motel-dev/api/v1/momo/update-result

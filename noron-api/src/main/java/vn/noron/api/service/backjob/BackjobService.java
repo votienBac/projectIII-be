@@ -29,17 +29,17 @@ public class BackjobService {
         this.roomRepository = roomRepository;
     }
 
-    //@PostConstruct
+//    ?@PostConstruct
     public Single<List<Room>> getDataFromOhana(){
         return rxSchedulerIo(() -> {
-            String body = "{\"search\":{\"location\":{\"lat\":10.855113,\"lng\":106.745268},\"query\":{\"room_location_district\":762,\"room_location\":\"HCM\"}},\"placeDetail\":{\"formatted_address\":\"Thủ Đức\",\"address_components\":{\"name\":\"Thủ Đức\",\"district_index\":true,\"postal\":762,\"locations\":[{\"lat\":10.855113,\"lon\":106.745268}]},\"type\":\"district\",\"roomSearchType\":\"ohana\"},\"room_location\":\"HCM\"}";
+            String body = "{\"search\":{\"location\":{\"lat\":20.9836983,\"lng\":105.8636257},\"query\":{\"room_location_district\":8,\"room_location\":\"HN\"}},\"placeDetail\":{\"formatted_address\":\"Hoàng Mai\",\"address_components\":{\"name\":\"Hoàng Mai\",\"district_index\":true,\"postal\":8,\"locations\":[{\"lat\":20.9836983,\"lon\":105.8636257}]},\"type\":\"district\",\"roomSearchType\":\"ohana\"},\"room_location\":\"HN\"}";
             String response = okHttpService.post(url, body);
             ApiRoomObject res = new JsonObject(response).mapTo(ApiRoomObject.class);
             List<RoomOhana> ohanaRoomDatas = res.getData();
             return roomMapper.fromOhana(ohanaRoomDatas);
         });
     }
-    //@PostConstruct
+//    @PostConstruct
     public Single<Boolean> addDataToDB(){
         return getDataFromOhana()
                 .map(rooms -> {

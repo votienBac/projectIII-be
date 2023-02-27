@@ -97,6 +97,12 @@ public class RoomServiceImpl implements IRoomService {
         return Single.just("success");
 
     }
+//    @Override
+//    public Single<String> deleteRoom(String id) {
+//        roomRepository.deleteRoom(id);
+//        return Single.just("success");
+//
+//    }
 
     @Override
     public Single<String> deleteRoom(String id, Authentication authentication) {

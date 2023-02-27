@@ -44,7 +44,7 @@ public class RoomRepositoryImpl extends AbsMongoRepository<Room> implements IRoo
     public Single<List<Room>> getByIds(List<String> id) {
         return rxSchedulerIo(() -> {
             List<Room> rooms = mongoCollection
-                    .find(and(in(_ID, id), eq(PENDING, false)))
+                    .find(and(in(_ID, id), eq(PENDING, false), filterExist()))
                     .map(document -> new JsonObject(document).mapTo(tClazz))
                     .into(new ArrayList<>());
             return rooms;
@@ -58,11 +58,26 @@ public class RoomRepositoryImpl extends AbsMongoRepository<Room> implements IRoo
                 set(PENDING, false));
     }
 
+    @Override
+    public void deleteRoom(String id) {
+        mongoCollection.updateOne(
+                eq(_ID, id),
+                set("disabled", true));
+    }
+    @Override
+    public String updateStatus(List<String> ids, Boolean isDisabled) {
+        mongoCollection.updateMany(
+                in(_ID, ids),
+                set("disabled", isDisabled));
+        return "success";
+    }
+
 
     @Override
     public Single<List<Room>> search(SearchRoomRequest request, Pageable pageable) {
         return rxSchedulerIo(() -> mongoCollection
                 .find(and(filterActive(),
+                        filterExist(),
                         filterIsPaid(),
                         filterPending(false),
                         buildSearchQueriesFilter(request)))
@@ -87,14 +102,22 @@ public class RoomRepositoryImpl extends AbsMongoRepository<Room> implements IRoo
     @Override
     public Single<List<Room>> getByUserIds(List<Long> userIds){
         return rxSchedulerIo(() -> mongoCollection
-                .find(and(filterActive(), in(USER_ID, userIds)))
+                .find(and(filterActive(), filterExist(), in(USER_ID, userIds)))
+                .map(document -> new JsonObject(document).mapTo(tClazz))
+                .into(new ArrayList<>()));
+    }
+    @Override
+    public Single<List<Room>> getByUserId(Long userId){
+        return rxSchedulerIo(() -> mongoCollection
+                .find(and(filterActive(), eq(USER_ID, userId)))
                 .map(document -> new JsonObject(document).mapTo(tClazz))
                 .into(new ArrayList<>()));
     }
 
+
     @Override
     public List<Room> getAll() {
-        return mongoCollection.find(filterActive())
+        return mongoCollection.find(and(filterActive(), filterExist()))
                 .map(document -> new JsonObject(document).mapTo(tClazz))
                 .into(new ArrayList<>());
     }
@@ -104,6 +127,7 @@ public class RoomRepositoryImpl extends AbsMongoRepository<Room> implements IRoo
         return rxSchedulerIo(() -> mongoCollection
                 .find(and(
                         filterActive(),
+                        filterExist(),
                         filterPending(false),
                         filterIsPaid(),
                         buildSearchQueriesFilter(request)))
@@ -117,6 +141,7 @@ public class RoomRepositoryImpl extends AbsMongoRepository<Room> implements IRoo
         return rxSchedulerIo(() -> {
             List<Bson> bsons = new ArrayList<>();
             bsons.add(filterActive());
+            bsons.add(filterExist());
             bsons.add(eq(USER_ID, request.getUserId()));
             if (request.getIsPending() != null)
                 bsons.add(filterPending(request.getIsPending()));
@@ -142,6 +167,7 @@ public class RoomRepositoryImpl extends AbsMongoRepository<Room> implements IRoo
         return rxSchedulerIo(() -> {
             List<Bson> bsons = new ArrayList<>();
             bsons.add(filterActive());
+            bsons.add(filterExist());
             bsons.add(filterPending(true));
             FindIterable<Document> findIterable = mongoCollection
                     .find(and(bsons));
